@@ -5,42 +5,34 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Sparkles, CheckCircle2, AlertCircle, ArrowLeft, BookOpen } from "lucide-react";
 
+interface Gap {
+  skill: string;
+  priority: "high" | "medium" | "low";
+}
+
+interface Recommendation {
+  title: string;
+  description: string;
+  priority: "high" | "medium" | "low";
+}
+
+interface AnalysisData {
+  matchScore: number;
+  strengths: string[];
+  gaps: Gap[];
+  recommendations: Recommendation[];
+}
+
 const Analysis = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Mock data - will be replaced with AI analysis
-  const mockData = {
-    matchScore: 78,
-    strengths: [
-      "React & TypeScript expertise",
-      "5+ years frontend development",
-      "Strong UI/UX design skills",
-      "Team collaboration experience",
-    ],
-    gaps: [
-      { skill: "GraphQL", priority: "high" },
-      { skill: "Docker/Kubernetes", priority: "medium" },
-      { skill: "CI/CD pipelines", priority: "medium" },
-    ],
-    recommendations: [
-      {
-        title: "Master GraphQL Fundamentals",
-        description: "Build a full-stack project using GraphQL with Apollo Client",
-        priority: "high",
-      },
-      {
-        title: "Learn Container Orchestration",
-        description: "Deploy a microservices app using Docker and Kubernetes",
-        priority: "medium",
-      },
-      {
-        title: "Implement CI/CD Pipeline",
-        description: "Set up GitHub Actions for automated testing and deployment",
-        priority: "medium",
-      },
-    ],
-  };
+  const analysisData = location.state?.analysis as AnalysisData;
+
+  if (!analysisData) {
+    navigate("/");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -73,13 +65,13 @@ const Analysis = () => {
               <div className="space-y-2">
                 <p className="text-sm font-medium opacity-90">Your Skill Match Score</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-bold">{mockData.matchScore}%</span>
+                  <span className="text-6xl font-bold">{analysisData.matchScore}%</span>
                   <span className="text-lg opacity-75">fit</span>
                 </div>
               </div>
               <div className="w-full md:w-64">
                 <Progress 
-                  value={mockData.matchScore} 
+                  value={analysisData.matchScore} 
                   className="h-3 bg-primary-foreground/20"
                 />
                 <p className="text-sm mt-2 opacity-75">
@@ -96,7 +88,7 @@ const Analysis = () => {
               <h2 className="text-2xl font-semibold">Your Top Strengths</h2>
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
-              {mockData.strengths.map((strength, index) => (
+              {analysisData.strengths.map((strength, index) => (
                 <div
                   key={index}
                   className="flex items-start gap-3 p-4 rounded-lg bg-success/5 border border-success/20"
@@ -115,7 +107,7 @@ const Analysis = () => {
               <h2 className="text-2xl font-semibold">Growth Areas</h2>
             </div>
             <div className="space-y-3">
-              {mockData.gaps.map((gap, index) => (
+              {analysisData.gaps.map((gap, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-4 rounded-lg bg-warning/5 border border-warning/20 hover:border-warning/40 transition-colors"
@@ -142,7 +134,7 @@ const Analysis = () => {
               <h2 className="text-2xl font-semibold">Suggested Learning Path</h2>
             </div>
             <div className="space-y-4">
-              {mockData.recommendations.map((rec, index) => (
+              {analysisData.recommendations.map((rec, index) => (
                 <div
                   key={index}
                   className="p-5 rounded-lg border border-border hover:border-accent/50 hover:shadow-card transition-all space-y-2"

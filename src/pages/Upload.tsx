@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Upload as UploadIcon } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -20,16 +21,35 @@ const Upload = () => {
 
     setIsAnalyzing(true);
     
-    // Simulate analysis (will connect to AI later)
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-skill-gap', {
+        body: { resume, jobDescription }
+      });
+
+      if (error) {
+        console.error("Analysis error:", error);
+        toast.error("Analysis failed. Please try again.");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      if (!data?.analysis) {
+        toast.error("Invalid analysis response");
+        setIsAnalyzing(false);
+        return;
+      }
+
       navigate("/analysis", { 
         state: { 
-          resume, 
-          jobDescription 
+          analysis: data.analysis
         } 
       });
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
       setIsAnalyzing(false);
-    }, 1500);
+    }
   };
 
   return (

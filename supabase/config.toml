@@ -1,0 +1,4 @@
+project_id = "oocglurxdslnhuxvbghh"
+
+[functions.analyze-skill-gap]
+verify_jwt = false
