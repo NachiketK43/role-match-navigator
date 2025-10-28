@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { LogOut, User } from 'lucide-react';
+import { User } from 'lucide-react';
+import Header from '@/components/Header';
 
 interface Profile {
   email: string;
@@ -42,12 +43,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success('Signed out successfully');
-    navigate('/login');
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -58,20 +53,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <nav className="border-b bg-card/50 backdrop-blur">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold">Dashboard</h1>
-          <Button
-            onClick={handleSignOut}
-            variant="ghost"
-            size="sm"
-            className="gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </Button>
-        </div>
-      </nav>
+      <Header />
 
       <main className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="max-w-3xl mx-auto space-y-6">

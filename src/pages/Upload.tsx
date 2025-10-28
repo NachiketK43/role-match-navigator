@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Sparkles, Upload as UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -54,15 +55,7 @@ const Upload = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-accent" />
-            <h1 className="text-xl font-semibold">SkillLens</h1>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-16">

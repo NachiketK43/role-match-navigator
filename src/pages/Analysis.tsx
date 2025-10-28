@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, CheckCircle2, AlertCircle, ArrowLeft, BookOpen } from "lucide-react";
+import { Sparkles, CheckCircle2, AlertCircle, BookOpen } from "lucide-react";
+import Header from "@/components/Header";
 
 interface Gap {
   skill: string;
@@ -36,25 +37,7 @@ const Analysis = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-accent" />
-              <h1 className="text-xl font-semibold">SkillLens</h1>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate("/")}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              New Analysis
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12">
