@@ -28,26 +28,37 @@ serve(async (req) => {
     // Handle text files
     if (fileName.endsWith('.txt')) {
       extractedText = await file.text();
-    } else {
+      
+      if (!extractedText || extractedText.trim().length < 10) {
+        return new Response(
+          JSON.stringify({ error: 'File appears to be empty. Please paste the text directly.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
-        JSON.stringify({ error: 'Only .txt files are supported. Please paste your resume or job description directly into the text area.' }),
+        JSON.stringify({ text: extractedText.trim() }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    // For PDF and DOCX files - provide helpful error message
+    else if (fileName.endsWith('.pdf') || fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'PDF and DOCX parsing is currently unavailable. Please copy the text from your document and paste it directly into the text area.' 
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    if (!extractedText || extractedText.trim().length < 10) {
+    // Unsupported format
+    else {
       return new Response(
-        JSON.stringify({ error: 'File appears to be empty. Please paste the text directly into the text area.' }),
+        JSON.stringify({ error: 'Please upload a .txt file or paste your content directly into the text area.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    return new Response(
-      JSON.stringify({ text: extractedText.trim() }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
   } catch (error) {
-    console.error('Error parsing document:', error);
+    console.error('Error processing file:', error);
     return new Response(
       JSON.stringify({ error: 'Failed to process file. Please paste the text directly into the text area.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

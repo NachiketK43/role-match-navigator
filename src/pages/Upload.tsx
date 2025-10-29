@@ -125,7 +125,7 @@ const Upload = () => {
                   <Input
                     ref={resumeFileRef}
                     type="file"
-                    accept=".txt"
+                    accept=".pdf,.docx,.doc,.txt"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(file, 'resume');
@@ -159,7 +159,7 @@ const Upload = () => {
                 onChange={(e) => setResume(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Upload .txt files, or paste your resume text directly
+                Upload PDF, DOCX, or TXT files, or paste your resume text
               </p>
             </Card>
 
@@ -174,7 +174,7 @@ const Upload = () => {
                   <Input
                     ref={jdFileRef}
                     type="file"
-                    accept=".txt"
+                    accept=".pdf,.docx,.doc,.txt"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(file, 'jd');
@@ -208,7 +208,7 @@ const Upload = () => {
                 onChange={(e) => setJobDescription(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Upload .txt files, or paste the job description directly
+                Upload PDF, DOCX, or TXT files, or paste the job description
               </p>
             </Card>
           </div>
