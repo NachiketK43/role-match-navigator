@@ -29,37 +29,43 @@ serve(async (req) => {
     if (fileName.endsWith('.txt')) {
       extractedText = await file.text();
     } 
-    // Handle PDF files
+    // Handle PDF files - using dynamic import to avoid build errors
     else if (fileName.endsWith('.pdf')) {
-      const arrayBuffer = await file.arrayBuffer();
-      const response = await fetch('https://pdf-extract.deno.dev/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/pdf' },
-        body: arrayBuffer,
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to extract PDF text');
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Import pdf-parse dynamically from esm.sh
+        const pdfParse = await import('https://esm.sh/pdf-parse@1.1.1');
+        const data = await pdfParse.default(new Uint8Array(arrayBuffer));
+        extractedText = data.text || '';
+      } catch (pdfError) {
+        console.error('PDF parsing error:', pdfError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to extract PDF text. The PDF might be scanned or image-based. Please try converting it to text first or paste the content manually.' 
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-      
-      const data = await response.json();
-      extractedText = data.text || '';
     }
     // Handle DOCX files
     else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
-      const arrayBuffer = await file.arrayBuffer();
-      
-      // Use a simple text extraction approach for DOCX
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const textDecoder = new TextDecoder('utf-8', { fatal: false });
-      const rawText = textDecoder.decode(uint8Array);
-      
-      // Basic cleanup - remove XML tags and special characters
-      extractedText = rawText
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Import mammoth dynamically from esm.sh for DOCX parsing
+        const mammoth = await import('https://esm.sh/mammoth@1.6.0');
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        extractedText = result.value || '';
+      } catch (docError) {
+        console.error('DOCX parsing error:', docError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to extract DOCX text. Please try converting it to text first or paste the content manually.' 
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
     // Unsupported format
     else {
@@ -69,15 +75,15 @@ serve(async (req) => {
       );
     }
 
-    if (!extractedText || extractedText.length < 10) {
+    if (!extractedText || extractedText.trim().length < 10) {
       return new Response(
-        JSON.stringify({ error: 'Could not extract text from the file. Please try a different format or paste the text manually.' }),
+        JSON.stringify({ error: 'Could not extract meaningful text from the file. Please check the file content or paste the text manually.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
-      JSON.stringify({ text: extractedText }),
+      JSON.stringify({ text: extractedText.trim() }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
