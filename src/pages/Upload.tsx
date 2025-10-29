@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Upload as UploadIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, Upload as UploadIcon, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -13,6 +14,46 @@ const Upload = () => {
   const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [isUploadingJD, setIsUploadingJD] = useState(false);
+  
+  const resumeFileRef = useRef<HTMLInputElement>(null);
+  const jdFileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (file: File, type: 'resume' | 'jd') => {
+    const setLoading = type === 'resume' ? setIsUploadingResume : setIsUploadingJD;
+    const setText = type === 'resume' ? setResume : setJobDescription;
+    
+    setLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const { data, error } = await supabase.functions.invoke('parse-document', {
+        body: formData,
+      });
+
+      if (error) {
+        console.error("Upload error:", error);
+        toast.error("Failed to parse file. Please try again.");
+        return;
+      }
+
+      if (!data?.text) {
+        toast.error("Could not extract text from file");
+        return;
+      }
+
+      setText(data.text);
+      toast.success(`${type === 'resume' ? 'Resume' : 'Job description'} uploaded successfully!`);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!resume.trim() || !jobDescription.trim()) {
@@ -75,35 +116,99 @@ const Upload = () => {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Resume Input */}
             <Card className="p-6 space-y-4 shadow-card hover:shadow-elevated transition-shadow">
-              <div className="flex items-center gap-2">
-                <UploadIcon className="h-5 w-5 text-primary" />
-                <h3 className="font-semibold text-lg">Your Resume</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold text-lg">Your Resume</h3>
+                </div>
+                <div>
+                  <Input
+                    ref={resumeFileRef}
+                    type="file"
+                    accept=".pdf,.docx,.doc,.txt"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'resume');
+                    }}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => resumeFileRef.current?.click()}
+                    disabled={isUploadingResume}
+                  >
+                    {isUploadingResume ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <UploadIcon className="mr-2 h-4 w-4" />
+                        Upload File
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <Textarea
-                placeholder="Paste your resume here..."
+                placeholder="Paste your resume here or upload a file..."
                 className="min-h-[400px] resize-none font-mono text-sm"
                 value={resume}
                 onChange={(e) => setResume(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Include your skills, experience, and education
+                Upload PDF, DOCX, or TXT files, or paste your resume text
               </p>
             </Card>
 
             {/* Job Description Input */}
             <Card className="p-6 space-y-4 shadow-card hover:shadow-elevated transition-shadow">
-              <div className="flex items-center gap-2">
-                <UploadIcon className="h-5 w-5 text-accent" />
-                <h3 className="font-semibold text-lg">Job Description</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-accent" />
+                  <h3 className="font-semibold text-lg">Job Description</h3>
+                </div>
+                <div>
+                  <Input
+                    ref={jdFileRef}
+                    type="file"
+                    accept=".pdf,.docx,.doc,.txt"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'jd');
+                    }}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => jdFileRef.current?.click()}
+                    disabled={isUploadingJD}
+                  >
+                    {isUploadingJD ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <UploadIcon className="mr-2 h-4 w-4" />
+                        Upload File
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <Textarea
-                placeholder="Paste the job description here..."
+                placeholder="Paste the job description here or upload a file..."
                 className="min-h-[400px] resize-none font-mono text-sm"
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Include required skills, responsibilities, and qualifications
+                Upload PDF, DOCX, or TXT files, or paste the job description
               </p>
             </Card>
           </div>
