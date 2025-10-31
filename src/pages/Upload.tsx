@@ -8,6 +8,7 @@ import { Sparkles, Upload as UploadIcon, FileText, Loader2 } from "lucide-react"
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import * as pdfjsLib from "pdfjs-dist";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -20,6 +21,26 @@ const Upload = () => {
   const resumeFileRef = useRef<HTMLInputElement>(null);
   const jdFileRef = useRef<HTMLInputElement>(null);
 
+  // Configure PDF.js worker
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+  const parsePDF = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      fullText += pageText + '\n';
+    }
+
+    return fullText.trim();
+  };
+
   const handleFileUpload = async (file: File, type: 'resume' | 'jd') => {
     const setLoading = type === 'resume' ? setIsUploadingResume : setIsUploadingJD;
     const setText = type === 'resume' ? setResume : setJobDescription;
@@ -27,29 +48,54 @@ const Upload = () => {
     setLoading(true);
     
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const { data, error } = await supabase.functions.invoke('parse-document', {
-        body: formData,
-      });
+      let extractedText = '';
 
-      if (error) {
-        console.error("Upload error:", error);
-        toast.error("Failed to parse file. Please try again.");
+      // Handle PDF files client-side
+      if (file.name.toLowerCase().endsWith('.pdf')) {
+        toast.info('Parsing PDF... This may take a moment');
+        extractedText = await parsePDF(file);
+      } 
+      // Handle text files via edge function
+      else if (file.name.toLowerCase().endsWith('.txt')) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const { data, error } = await supabase.functions.invoke('parse-document', {
+          body: formData,
+        });
+
+        if (error) {
+          console.error("Upload error:", error);
+          toast.error("Failed to parse file. Please try again.");
+          return;
+        }
+
+        if (data?.error) {
+          toast.error(data.error);
+          return;
+        }
+
+        if (!data?.text) {
+          toast.error("Could not extract text from file");
+          return;
+        }
+
+        extractedText = data.text;
+      } else {
+        toast.error('Please upload a PDF or TXT file');
         return;
       }
 
-      if (!data?.text) {
-        toast.error("Could not extract text from file");
+      if (!extractedText || extractedText.trim().length < 10) {
+        toast.error('File appears to be empty. Please paste the text directly.');
         return;
       }
 
-      setText(data.text);
+      setText(extractedText);
       toast.success(`${type === 'resume' ? 'Resume' : 'Job description'} uploaded successfully!`);
     } catch (error) {
       console.error("Unexpected error:", error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Failed to process file. Please paste the text directly.");
     } finally {
       setLoading(false);
     }
@@ -125,7 +171,7 @@ const Upload = () => {
                   <Input
                     ref={resumeFileRef}
                     type="file"
-                    accept=".pdf,.docx,.doc,.txt"
+                    accept=".pdf,.txt"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(file, 'resume');
@@ -159,7 +205,7 @@ const Upload = () => {
                 onChange={(e) => setResume(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Upload PDF, DOCX, or TXT files, or paste your resume text
+                Upload PDF or TXT files, or paste your resume text
               </p>
             </Card>
 
@@ -174,7 +220,7 @@ const Upload = () => {
                   <Input
                     ref={jdFileRef}
                     type="file"
-                    accept=".pdf,.docx,.doc,.txt"
+                    accept=".pdf,.txt"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(file, 'jd');
@@ -208,7 +254,7 @@ const Upload = () => {
                 onChange={(e) => setJobDescription(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Upload PDF, DOCX, or TXT files, or paste the job description
+                Upload PDF or TXT files, or paste the job description
               </p>
             </Card>
           </div>
