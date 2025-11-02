@@ -12,11 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    const { resume, jobDescription, analysisResult } = await req.json();
+    const { targetRole, targetCompany, jobDescription, template } = await req.json();
 
-    if (!resume || !jobDescription) {
+    if (!targetRole || !targetCompany || !jobDescription || !template) {
       return new Response(
-        JSON.stringify({ error: 'Resume and job description are required' }),
+        JSON.stringify({ error: 'All fields are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -30,44 +30,41 @@ serve(async (req) => {
       );
     }
 
+    const templateInstructions = {
+      professional: 'Professional, formal, traditional business tone. Use formal language and structure.',
+      passionate: 'Enthusiastic, engaging, showing genuine interest and excitement for the role and company.',
+      'data-driven': 'Metrics-focused, achievement-oriented, emphasizing quantifiable results and specific accomplishments.',
+      creative: 'Unique, innovative approach with creative storytelling while maintaining professionalism.'
+    };
+
     const systemPrompt = `You are an expert cover letter writer specializing in creating compelling, personalized cover letters that help candidates stand out.
 
-Your task is to generate THREE distinct versions of a cover letter, each with a different tone:
+Your task is to generate a cover letter with the following style: ${templateInstructions[template as keyof typeof templateInstructions]}
 
-1. **Conservative** - Professional, formal, traditional business tone
-2. **Passionate** - Enthusiastic, engaging, showing genuine interest
-3. **Data-Driven** - Metrics-focused, achievement-oriented, quantifiable results
-
-For each version:
-- Address the specific role and company (extract from job description)
-- Highlight the candidate's top strengths from the resume analysis
-- Reference specific achievements and experience from the resume
-- Address any gaps or missing keywords constructively
+Guidelines:
+- Address the specific role (${targetRole}) and company (${targetCompany})
+- Demonstrate knowledge of the company and genuine interest in the role
+- Highlight relevant skills and experiences that match the job description
+- Use specific examples and achievements when possible
 - Match the company culture/tone inferred from the job description
-- Include a strong, confident closing paragraph
+- Include a strong opening that grabs attention
+- Include a confident, action-oriented closing paragraph
 - Keep it concise (300-400 words)
-- Make it feel personal and authentic, not generic`;
+- Make it feel personal and authentic, not generic
+- Use proper cover letter format with greeting and signature placeholders`;
 
-    const userPrompt = `Generate three cover letter variations based on:
+    const userPrompt = `Generate a ${template} cover letter for:
 
-**RESUME:**
-${resume}
+**TARGET ROLE:**
+${targetRole}
+
+**TARGET COMPANY:**
+${targetCompany}
 
 **JOB DESCRIPTION:**
 ${jobDescription}
 
-${analysisResult ? `**ANALYSIS INSIGHTS:**
-- ATS Score: ${analysisResult.atsScore}%
-- Strengths: ${analysisResult.keywordInsights?.filter((k: any) => k.status === 'strong').map((k: any) => k.keyword).join(', ') || 'N/A'}
-- Missing Keywords: ${analysisResult.keywordInsights?.filter((k: any) => k.status === 'missing').map((k: any) => k.keyword).join(', ') || 'N/A'}
-- Overall Feedback: ${analysisResult.overallFeedback || 'N/A'}` : ''}
-
-Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks):
-{
-  "conservative": "full cover letter text here",
-  "passionate": "full cover letter text here",
-  "dataDriven": "full cover letter text here"
-}`;
+Return ONLY the cover letter text (no JSON, no markdown formatting, just the letter).`;
 
     console.log('Calling Lovable AI for cover letter generation...');
 
@@ -112,9 +109,9 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no code 
     }
 
     const aiData = await aiResponse.json();
-    const content = aiData.choices?.[0]?.message?.content;
+    const coverLetter = aiData.choices?.[0]?.message?.content;
 
-    if (!content) {
+    if (!coverLetter) {
       console.error('No content in AI response');
       return new Response(
         JSON.stringify({ error: 'Invalid AI response' }),
@@ -122,20 +119,10 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no code 
       );
     }
 
-    // Parse the AI response - handle potential markdown code blocks
-    let cleanedContent = content.trim();
-    if (cleanedContent.startsWith('```json')) {
-      cleanedContent = cleanedContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (cleanedContent.startsWith('```')) {
-      cleanedContent = cleanedContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
-    }
-
-    const coverLetters = JSON.parse(cleanedContent);
-
-    console.log('Successfully generated cover letters');
+    console.log('Successfully generated cover letter');
 
     return new Response(
-      JSON.stringify({ coverLetters }),
+      JSON.stringify({ coverLetter: coverLetter.trim() }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
