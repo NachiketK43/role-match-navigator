@@ -63,7 +63,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-accent" />
-            <h1 className="text-xl font-semibold">SkillLens</h1>
+            <h1 className="text-xl font-semibold">Next Hire</h1>
           </div>
 
           {/* Centered Navigation */}

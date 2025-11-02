@@ -97,7 +97,7 @@ export function AppSidebar() {
             </div>
             {!isCollapsed && (
               <div>
-                <h2 className="font-bold text-primary text-lg">Skill Lens</h2>
+                <h2 className="font-bold text-primary text-lg">Next Hire</h2>
                 <p className="text-xs text-[#343434]">AI-Powered Career Growth</p>
               </div>
             )}
