@@ -114,34 +114,38 @@ const PracticeInterviewQuestions = () => {
           {!questions && (
             <Card className="p-8 shadow-card space-y-6">
               <div className="space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="targetRole" className="flex items-center gap-2 text-base">
-                    <Briefcase className="h-4 w-4 text-primary" />
-                    Target Role
-                  </Label>
-                  <Input
-                    id="targetRole"
-                    placeholder="e.g., Senior Software Engineer"
-                    value={targetRole}
-                    onChange={(e) => setTargetRole(e.target.value)}
-                    className="h-12"
-                  />
+                {/* Target Role and Company - Same Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="targetRole" className="flex items-center gap-2 text-base">
+                      <Briefcase className="h-4 w-4 text-primary" />
+                      Target Role
+                    </Label>
+                    <Input
+                      id="targetRole"
+                      placeholder="e.g., Senior Software Engineer"
+                      value={targetRole}
+                      onChange={(e) => setTargetRole(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="targetCompany" className="flex items-center gap-2 text-base">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      Target Company
+                    </Label>
+                    <Input
+                      id="targetCompany"
+                      placeholder="e.g., Microsoft"
+                      value={targetCompany}
+                      onChange={(e) => setTargetCompany(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="targetCompany" className="flex items-center gap-2 text-base">
-                    <Building2 className="h-4 w-4 text-primary" />
-                    Target Company
-                  </Label>
-                  <Input
-                    id="targetCompany"
-                    placeholder="e.g., Microsoft"
-                    value={targetCompany}
-                    onChange={(e) => setTargetCompany(e.target.value)}
-                    className="h-12"
-                  />
-                </div>
-
+                {/* Job Description - Full Width */}
                 <div className="space-y-3">
                   <Label htmlFor="jobDescription" className="flex items-center gap-2 text-base">
                     <FileText className="h-4 w-4 text-primary" />
