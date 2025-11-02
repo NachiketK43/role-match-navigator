@@ -100,7 +100,7 @@ const CoverLetterGenerator = () => {
               Cover Letter Generator
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Generate personalized cover letters in multiple tones tailored to your resume and job description.
+              Create personalized cover letters in multiple tones based on your resume and job.
             </p>
           </div>
 
