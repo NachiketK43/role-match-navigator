@@ -159,9 +159,6 @@ export default function Profile() {
         <Card>
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
-            <CardDescription>
-              Update your profile details to get more personalized recommendations
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Profile Picture */}
