@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const signupSchema = z.object({
+  fullName: z.string().min(2, { message: 'Full name must be at least 2 characters' }),
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
   confirmPassword: z.string(),
@@ -17,6 +18,7 @@ const signupSchema = z.object({
 });
 
 const Signup = () => {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,7 +35,7 @@ const Signup = () => {
     e.preventDefault();
     
     // Validate input
-    const validation = signupSchema.safeParse({ email, password, confirmPassword });
+    const validation = signupSchema.safeParse({ fullName, email, password, confirmPassword });
     if (!validation.success) {
       toast.error(validation.error.errors[0].message);
       return;
@@ -41,7 +43,7 @@ const Signup = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, fullName);
 
     if (error) {
       if (error.message.includes('already registered')) {
@@ -68,6 +70,19 @@ const Signup = () => {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-card p-8 rounded-lg border shadow-lg">
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="John Doe"
+                required
+                className="transition-all duration-200 focus:scale-[1.01]"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email address</Label>
               <Input

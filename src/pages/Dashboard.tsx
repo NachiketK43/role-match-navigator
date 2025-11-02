@@ -118,21 +118,6 @@ const Dashboard = () => {
 
       <main className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="max-w-6xl mx-auto space-y-8">
-          {/* User Profile Section */}
-          <Card className="transition-all duration-200 hover:shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <CardTitle>Welcome back!</CardTitle>
-                  <CardDescription>{profile?.email}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-
           {/* Hero Section */}
           <div className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
