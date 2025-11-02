@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import ResumeOptimizer from "./pages/ResumeOptimizer";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
+import PracticeInterviewQuestions from "./pages/PracticeInterviewQuestions";
 import AICareerCoach from "./pages/AICareerCoach";
 import AIResumeBuilder from "./pages/AIResumeBuilder";
 import JobSpecificResume from "./pages/JobSpecificResume";
@@ -67,6 +68,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <CoverLetterGenerator />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/practice-interview-questions"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PracticeInterviewQuestions />
                   </AppLayout>
                 </ProtectedRoute>
               }
