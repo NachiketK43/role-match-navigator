@@ -20,7 +20,7 @@ const Upload = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             NextHire helps you craft job-winning resumes, tailored cover letters, and interview answers — all powered by AI.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+          <div className="flex justify-center pt-6">
             <Button
               size="lg"
               className="px-8 py-6 text-lg font-semibold shadow-elevated hover:shadow-accent"
@@ -28,14 +28,6 @@ const Upload = () => {
             >
               Get Started Free
               <Sparkles className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-8 py-6 text-lg font-semibold"
-              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              See How It Works
             </Button>
           </div>
         </div>
@@ -64,8 +56,8 @@ const Upload = () => {
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
               <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                  <Target className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Optimize for Any Job</CardTitle>
                 <CardDescription>
@@ -76,8 +68,8 @@ const Upload = () => {
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
               <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center mb-4">
-                  <MessageSquare className="h-6 w-6 text-success" />
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <MessageSquare className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Prepare for Interviews</CardTitle>
                 <CardDescription>
@@ -111,7 +103,7 @@ const Upload = () => {
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
               <CardHeader>
-                <MessageSquare className="h-8 w-8 text-accent mb-2" />
+                <MessageSquare className="h-8 w-8 text-primary mb-2" />
                 <CardTitle className="text-lg">Smart Cover Letter Generator</CardTitle>
                 <CardDescription>
                   Create personalized cover letters in seconds
@@ -121,7 +113,7 @@ const Upload = () => {
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
               <CardHeader>
-                <CheckCircle2 className="h-8 w-8 text-success mb-2" />
+                <CheckCircle2 className="h-8 w-8 text-primary mb-2" />
                 <CardTitle className="text-lg">Interview Question Predictor</CardTitle>
                 <CardDescription>
                   Practice with AI-generated interview questions
@@ -131,7 +123,7 @@ const Upload = () => {
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
               <CardHeader>
-                <BarChart3 className="h-8 w-8 text-info mb-2" />
+                <BarChart3 className="h-8 w-8 text-primary mb-2" />
                 <CardTitle className="text-lg">Career Analytics Dashboard</CardTitle>
                 <CardDescription>
                   Track your progress and see where you stand
