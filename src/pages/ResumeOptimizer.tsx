@@ -86,7 +86,7 @@ const ResumeOptimizer = () => {
               Resume Optimizer
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Get actionable insights and rewrites with ATS feedback to improve your hiring chances.
+              Actionable insights and rewrites with ATS feedback to boost your hiring chances.
             </p>
           </div>
 
