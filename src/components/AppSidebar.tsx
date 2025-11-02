@@ -89,12 +89,12 @@ export function AppSidebar() {
         <div className="px-4 py-6 border-b bg-[#fafafa]">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
+              <Sparkles className="h-5 w-5 text-white" />
             </div>
             {!isCollapsed && (
               <div>
                 <h2 className="font-bold text-primary text-lg">Skill Lens</h2>
-                <p className="text-xs text-gray-600">AI-Powered Career Growth</p>
+                <p className="text-xs text-[#343434]">AI-Powered Career Growth</p>
               </div>
             )}
           </div>
@@ -143,10 +143,10 @@ export function AppSidebar() {
             </Avatar>
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-[#343434] truncate">
                   {fullName || "User"}
                 </p>
-                <p className="text-xs text-gray-600 truncate">
+                <p className="text-xs text-[#343434]/70 truncate">
                   {user.email}
                 </p>
               </div>
