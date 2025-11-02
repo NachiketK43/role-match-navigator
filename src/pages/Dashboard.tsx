@@ -118,11 +118,10 @@ const Dashboard = () => {
           {/* Hero Section */}
           <div className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#343434]">
-              Understand your fit.
-              <span className="text-primary"> Instantly.</span>
+              Skill Gap
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              No guesswork. Just clear, data-backed insights on where you stand and how to grow.
+              No guesswork - just clear data-backed insights on where you stand and how to grow.
             </p>
           </div>
 
