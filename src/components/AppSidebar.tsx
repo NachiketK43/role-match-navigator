@@ -141,7 +141,7 @@ export function AppSidebar() {
         {user && (
           <div className="flex items-center gap-3">
             <div
-              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer rounded-md p-2 hover:bg-muted transition-colors"
               onClick={() => navigate("/profile")}
             >
               <Avatar className="h-10 w-10">
