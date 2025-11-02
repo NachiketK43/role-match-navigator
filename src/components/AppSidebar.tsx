@@ -117,7 +117,7 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           isActive
                             ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                            : "text-gray-900 hover:bg-primary/10 hover:text-primary"
+                            : "text-[#343434] hover:bg-primary/10 hover:text-primary"
                         }
                       >
                         <item.icon className="h-4 w-4" />
@@ -155,7 +155,7 @@ export function AppSidebar() {
               variant="ghost"
               size="icon"
               onClick={handleSignOut}
-              className="h-8 w-8 text-gray-700 hover:text-primary hover:bg-primary/10"
+              className="h-8 w-8 text-[#343434] hover:text-primary hover:bg-primary/10"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
