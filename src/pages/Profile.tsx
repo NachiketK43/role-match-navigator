@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -15,7 +16,7 @@ interface ProfileData {
   email: string;
   role: string;
   company: string;
-  years_of_experience: number;
+  years_of_experience: string;
   career_goals: string;
   linkedin_url: string;
   portfolio_url: string;
@@ -33,7 +34,7 @@ export default function Profile() {
     email: "",
     role: "",
     company: "",
-    years_of_experience: 0,
+    years_of_experience: "",
     career_goals: "",
     linkedin_url: "",
     portfolio_url: "",
@@ -45,7 +46,7 @@ export default function Profile() {
     email: "",
     role: "",
     company: "",
-    years_of_experience: 0,
+    years_of_experience: "",
     career_goals: "",
     linkedin_url: "",
     portfolio_url: "",
@@ -80,7 +81,7 @@ export default function Profile() {
         email: data?.email || "",
         role: data?.role || "",
         company: data?.company || "",
-        years_of_experience: data?.years_of_experience || 0,
+        years_of_experience: data?.years_of_experience?.toString() || "",
         career_goals: data?.career_goals || "",
         linkedin_url: data?.linkedin_url || "",
         portfolio_url: data?.portfolio_url || "",
@@ -204,7 +205,7 @@ export default function Profile() {
               </p>
             </div>
 
-            {/* Role and Company - Same Row */}
+            {/* Role and Years of Experience - Same Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
@@ -217,31 +218,34 @@ export default function Profile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="company">Company</Label>
-                <Input
-                  id="company"
-                  placeholder="e.g., Microsoft"
-                  value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                />
+                <Label htmlFor="years_of_experience">Years of Experience</Label>
+                <Select
+                  value={formData.years_of_experience}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, years_of_experience: value })
+                  }
+                >
+                  <SelectTrigger id="years_of_experience">
+                    <SelectValue placeholder="Select experience level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0-3 years">0-3 years</SelectItem>
+                    <SelectItem value="3-6 years">3-6 years</SelectItem>
+                    <SelectItem value="6-10 years">6-10 years</SelectItem>
+                    <SelectItem value="10+ years">10+ years</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            {/* Years of Experience */}
+            {/* Company */}
             <div className="space-y-2">
-              <Label htmlFor="years_of_experience">Years of Experience</Label>
+              <Label htmlFor="company">Company</Label>
               <Input
-                id="years_of_experience"
-                type="number"
-                min="0"
-                placeholder="5"
-                value={formData.years_of_experience || ""}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    years_of_experience: parseInt(e.target.value) || 0,
-                  })
-                }
+                id="company"
+                placeholder="e.g., Microsoft"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
               />
             </div>
 

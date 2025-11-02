@@ -26,7 +26,7 @@ export type Database = {
           portfolio_url: string | null
           profile_picture_url: string | null
           role: string | null
-          years_of_experience: number | null
+          years_of_experience: string | null
         }
         Insert: {
           career_goals?: string | null
@@ -39,7 +39,7 @@ export type Database = {
           portfolio_url?: string | null
           profile_picture_url?: string | null
           role?: string | null
-          years_of_experience?: number | null
+          years_of_experience?: string | null
         }
         Update: {
           career_goals?: string | null
@@ -52,7 +52,7 @@ export type Database = {
           portfolio_url?: string | null
           profile_picture_url?: string | null
           role?: string | null
-          years_of_experience?: number | null
+          years_of_experience?: string | null
         }
         Relationships: []
       }
