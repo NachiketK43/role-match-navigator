@@ -24,6 +24,7 @@ import MockInterviewAIAgent from "./pages/MockInterviewAIAgent";
 import InterviewPreparationHub from "./pages/InterviewPreparationHub";
 import InterviewQuestionBank from "./pages/InterviewQuestionBank";
 import BookMentorshipCall from "./pages/BookMentorshipCall";
+import PracticeInterviewQuestions from "./pages/PracticeInterviewQuestions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -167,6 +168,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <BookMentorshipCall />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/practice-interview-questions"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PracticeInterviewQuestions />
                   </AppLayout>
                 </ProtectedRoute>
               }
