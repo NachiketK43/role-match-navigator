@@ -28,7 +28,7 @@ const Signup = () => {
 
   // Redirect if already logged in
   if (user) {
-    navigate('/dashboard', { replace: true });
+    navigate('/onboarding', { replace: true });
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ const Signup = () => {
       setIsLoading(false);
     } else {
       toast.success('Account created! Welcome aboard!');
-      navigate('/dashboard');
+      navigate('/onboarding');
     }
   };
 

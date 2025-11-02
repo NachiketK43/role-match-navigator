@@ -15,6 +15,7 @@ import ResumeOptimizer from "./pages/ResumeOptimizer";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import PracticeInterviewQuestions from "./pages/PracticeInterviewQuestions";
 import Profile from "./pages/Profile";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,14 @@ const App = () => (
                   <AppLayout>
                     <Profile />
                   </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
                 </ProtectedRoute>
               }
             />
