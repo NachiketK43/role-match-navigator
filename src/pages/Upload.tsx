@@ -13,15 +13,15 @@ const Upload = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20 md:py-28">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
+      <section className="container mx-auto px-6 py-24 md:py-32">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
             Get Hired Faster with <span className="text-primary">AI</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             NextHire helps you craft job-winning resumes, tailored cover letters, and interview answers — all powered by AI.
           </p>
-          <div className="flex justify-center pt-6">
+          <div className="flex justify-center pt-8">
             <Button
               size="lg"
               className="px-8 py-6 text-lg font-semibold shadow-elevated hover:shadow-accent"
@@ -35,9 +35,9 @@ const Upload = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="container mx-auto px-6 py-16 bg-background/50">
+      <section id="how-it-works" className="container mx-auto px-6 py-24 bg-muted/30">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
             <p className="text-lg text-muted-foreground">Three simple steps to land your dream job</p>
           </div>
@@ -83,15 +83,15 @@ const Upload = () => {
       </section>
 
       {/* Core Features Section */}
-      <section className="container mx-auto px-6 py-16">
+      <section className="container mx-auto px-6 py-24">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Everything You Need to Land Your Dream Job
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="shadow-card hover:shadow-elevated transition-all">
               <CardHeader>
                 <FileText className="h-8 w-8 text-primary mb-2" />
@@ -136,10 +136,10 @@ const Upload = () => {
       </section>
 
       {/* Visual Demo Section */}
-      <section className="container mx-auto px-6 py-16 bg-background/50">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-4">
+      <section className="container mx-auto px-6 py-24 bg-muted/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold">
                 See how NextHire simplifies every step
               </h2>
@@ -162,8 +162,8 @@ const Upload = () => {
       </section>
 
       {/* Call-to-Action Section */}
-      <section className="container mx-auto px-6 py-20 md:py-28">
-        <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-primary rounded-2xl p-12 md:p-16 shadow-accent">
+      <section className="container mx-auto px-6 py-24 md:py-32">
+        <div className="max-w-4xl mx-auto text-center space-y-8 bg-gradient-primary rounded-2xl p-12 md:p-16 shadow-accent">
           <h2 className="text-4xl md:text-5xl font-bold text-white">
             Ready to Land Your Next Hire?
           </h2>
