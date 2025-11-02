@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, FileText, MessageSquare, Target, BarChart3, Upload as UploadIcon, CheckCircle2, Users, Quote } from "lucide-react";
+import { Sparkles, FileText, MessageSquare, Target, BarChart3, Upload as UploadIcon, CheckCircle2 } from "lucide-react";
 import Header from "@/components/Header";
 
 const Upload = () => {
@@ -163,77 +163,6 @@ const Upload = () => {
                 <p className="text-muted-foreground">Dashboard Preview</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Real Professionals. Real Results.</h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="shadow-card">
-              <CardHeader>
-                <Quote className="h-8 w-8 text-accent mb-4" />
-                <CardDescription className="text-base italic">
-                  "NextHire helped me land 3 interviews in my first week. The resume optimizer is a game-changer!"
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Sarah Johnson</p>
-                    <p className="text-sm text-muted-foreground">Product Manager</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card">
-              <CardHeader>
-                <Quote className="h-8 w-8 text-accent mb-4" />
-                <CardDescription className="text-base italic">
-                  "The interview prep feature gave me the confidence I needed. I got the job on my second interview!"
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Michael Chen</p>
-                    <p className="text-sm text-muted-foreground">Software Engineer</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card">
-              <CardHeader>
-                <Quote className="h-8 w-8 text-accent mb-4" />
-                <CardDescription className="text-base italic">
-                  "I never knew my resume had so many issues. NextHire fixed them all and got me hired faster."
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Emily Rodriguez</p>
-                    <p className="text-sm text-muted-foreground">Marketing Specialist</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
