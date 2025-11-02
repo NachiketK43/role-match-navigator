@@ -116,8 +116,8 @@ export function AppSidebar() {
                         to={item.url}
                         className={({ isActive }) =>
                           isActive
-                            ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                            : "text-[#343434] hover:bg-primary/10 hover:text-primary"
+                            ? "bg-primary text-[#343434] hover:bg-primary hover:text-[#343434]"
+                            : "text-[#343434] hover:bg-primary/10 hover:text-[#343434]"
                         }
                       >
                         <item.icon className="h-4 w-4" />
