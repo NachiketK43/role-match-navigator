@@ -100,13 +100,12 @@ const PracticeInterviewQuestions = () => {
       <div className="container mx-auto px-4 py-16 animate-fade-in">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Hero Section */}
-          <div className="text-center space-y-4">
+          <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
               Practice Interview Questions
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Generate and practice AI-predicted interview questions tailored to your target role. 
-              Get coached answers using the STAR method and identify weak areas to focus on.
+            <p className="text-lg text-muted-foreground">
+              Generate and practice AI-predicted interview questions tailored to your target role. Get coached answers using the STAR method and identify weak areas to focus on.
             </p>
           </div>
 

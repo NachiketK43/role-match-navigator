@@ -81,11 +81,11 @@ const ResumeOptimizer = () => {
       <div className="container mx-auto px-4 py-16 animate-fade-in">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Hero Section */}
-          <div className="text-center space-y-4">
+          <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#343434]">
               Resume Optimizer
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground">
               Actionable insights and rewrites with ATS feedback to boost your hiring chances.
             </p>
           </div>

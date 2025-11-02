@@ -116,11 +116,11 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-16 animate-fade-in">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Hero Section */}
-          <div className="text-center space-y-4">
+          <div className="space-y-3">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#343434]">
               Skill Gap
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground">
               No guesswork - just clear data-backed insights on where you stand and how to grow.
             </p>
           </div>

@@ -148,7 +148,7 @@ export default function Profile() {
     <div className="container max-w-4xl mx-auto py-12 px-4">
       <div className="space-y-8">
         {/* Header */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h1 className="text-4xl font-bold tracking-tight">Profile Settings</h1>
           <p className="text-muted-foreground">
             Manage your personal information and career details
