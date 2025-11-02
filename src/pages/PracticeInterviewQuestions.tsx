@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, RefreshCw, Check, ChevronDown, Target } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Sparkles, RefreshCw, CheckCircle2, Briefcase, Building2, FileText, Lightbulb } from 'lucide-react';
 
 interface Question {
   question: string;
@@ -22,166 +25,148 @@ interface InterviewData {
 }
 
 const PracticeInterviewQuestions = () => {
-  const [resume, setResume] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
+  const [targetRole, setTargetRole] = useState('');
+  const [targetCompany, setTargetCompany] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [interviewData, setInterviewData] = useState<InterviewData | null>(null);
-  const [practiced, setPracticed] = useState<Set<string>>(new Set());
+  const [questions, setQuestions] = useState<InterviewData | null>(null);
+  const [practicedQuestions, setPracticedQuestions] = useState<Set<number>>(new Set());
 
-  const handleGenerate = async () => {
-    if (!resume.trim() || !jobDescription.trim()) {
-      toast.error("Please fill in both resume and job description");
+  const generateQuestions = async () => {
+    if (!targetRole.trim() || !targetCompany.trim() || !jobDescription.trim()) {
+      toast.error('Please fill in all fields');
       return;
     }
 
     setIsGenerating(true);
-    setPracticed(new Set());
-
+    setPracticedQuestions(new Set());
+    
     try {
       const { data, error } = await supabase.functions.invoke('generate-interview-questions', {
-        body: { resume, jobDescription }
+        body: { targetRole, targetCompany, jobDescription }
       });
 
       if (error) {
-        console.error("Generation error:", error);
-        toast.error("We couldn't load interview questions right now. Please try again.");
+        console.error('Interview questions generation error:', error);
+        toast.error('We couldn\'t load interview questions right now. Please try again.');
         return;
       }
 
-      if (!data) {
-        toast.error("Invalid response from server");
+      if (!data?.behavioral || !data?.technical) {
+        toast.error('Invalid response from server');
         return;
       }
 
-      setInterviewData(data);
-      toast.success("Interview questions generated!");
+      setQuestions(data);
+      toast.success('Interview questions generated successfully!');
     } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("We couldn't load interview questions right now. Please try again.");
+      console.error('Unexpected error:', error);
+      toast.error('We couldn\'t load interview questions right now. Please try again.');
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const togglePracticed = (id: string) => {
-    setPracticed(prev => {
+  const togglePracticed = (questionId: number) => {
+    setPracticedQuestions(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
       } else {
-        newSet.add(id);
+        newSet.add(questionId);
       }
       return newSet;
     });
   };
 
-  const totalQuestions = interviewData 
-    ? interviewData.behavioral.length + interviewData.technical.length 
-    : 0;
-  const practicedCount = practiced.size;
-
-  const QuestionCard = ({ 
-    question, 
-    id, 
-    type 
-  }: { 
-    question: Question; 
-    id: string; 
-    type: 'behavioral' | 'technical';
-  }) => {
-    const isPracticed = practiced.has(id);
-
-    return (
-      <Collapsible>
-        <Card className={`p-4 transition-all ${isPracticed ? 'opacity-60 border-accent' : ''}`}>
-          <CollapsibleTrigger className="w-full">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 text-left">
-                <p className={`font-semibold ${isPracticed ? 'line-through' : ''}`}>
-                  {question.question}
-                </p>
-              </div>
-              <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />
-            </div>
-          </CollapsibleTrigger>
-          
-          <CollapsibleContent className="pt-4 space-y-4">
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-primary">Sample STAR Answer:</p>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{question.answer}</p>
-            </div>
-
-            <div className="bg-accent/10 p-3 rounded-lg">
-              <p className="text-xs font-medium text-accent mb-1">💡 AI Coaching Tip:</p>
-              <p className="text-xs text-muted-foreground">{question.coachingTip}</p>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={isPracticed ? "secondary" : "default"}
-                onClick={() => togglePracticed(id)}
-                className="text-xs"
-              >
-                <Check className="h-3 w-3 mr-1" />
-                {isPracticed ? "Practiced" : "Mark as Practiced"}
-              </Button>
-            </div>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-    );
+  const regenerateAnswer = async (index: number, type: 'behavioral' | 'technical') => {
+    toast.info('Regenerating answer...');
+    await generateQuestions();
   };
+
+  const handleReset = () => {
+    setQuestions(null);
+    setTargetRole('');
+    setTargetCompany('');
+    setJobDescription('');
+    setPracticedQuestions(new Set());
+  };
+
+  const totalQuestions = questions ? questions.behavioral.length + questions.technical.length : 0;
+  const progressPercentage = totalQuestions > 0 ? (practicedQuestions.size / totalQuestions) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <main className="container mx-auto px-6 py-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold">Practice Interview Questions</h1>
-            <p className="text-muted-foreground">
-              AI-powered question prediction with STAR method coaching
+      <div className="container mx-auto px-4 py-16 animate-fade-in">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Hero Section */}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+              Practice Interview Questions
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Generate and practice AI-predicted interview questions tailored to your target role. 
+              Get coached answers using the STAR method and identify weak areas to focus on.
             </p>
           </div>
 
-          {!interviewData ? (
-            <>
-              {/* Input Section */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="p-6 space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    Your Resume
-                  </h3>
-                  <Textarea
-                    placeholder="Paste your resume here..."
-                    className="min-h-[300px] resize-none font-mono text-sm"
-                    value={resume}
-                    onChange={(e) => setResume(e.target.value)}
+          {/* Input Section */}
+          {!questions && (
+            <Card className="p-8 shadow-card space-y-6">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="targetRole" className="flex items-center gap-2 text-base">
+                    <Briefcase className="h-4 w-4 text-primary" />
+                    Target Role
+                  </Label>
+                  <Input
+                    id="targetRole"
+                    placeholder="e.g., Senior Software Engineer"
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                    className="h-12"
                   />
-                </Card>
+                </div>
 
-                <Card className="p-6 space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Target className="h-5 w-5 text-accent" />
+                <div className="space-y-3">
+                  <Label htmlFor="targetCompany" className="flex items-center gap-2 text-base">
+                    <Building2 className="h-4 w-4 text-primary" />
+                    Target Company
+                  </Label>
+                  <Input
+                    id="targetCompany"
+                    placeholder="e.g., Microsoft"
+                    value={targetCompany}
+                    onChange={(e) => setTargetCompany(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="jobDescription" className="flex items-center gap-2 text-base">
+                    <FileText className="h-4 w-4 text-primary" />
                     Job Description
-                  </h3>
+                  </Label>
                   <Textarea
-                    placeholder="Paste the job description here..."
-                    className="min-h-[300px] resize-none font-mono text-sm"
+                    id="jobDescription"
+                    placeholder="Paste the complete job description here..."
+                    className="min-h-[250px] resize-y"
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                   />
-                </Card>
+                  <p className="text-xs text-muted-foreground">
+                    Include requirements, responsibilities, and qualifications for best results
+                  </p>
+                </div>
               </div>
 
-              <div className="flex justify-center">
+              {/* CTA */}
+              <div className="flex justify-center pt-4">
                 <Button
                   size="lg"
-                  onClick={handleGenerate}
+                  className="px-8 py-6 text-lg font-semibold shadow-elevated"
+                  onClick={generateQuestions}
                   disabled={isGenerating}
-                  className="px-8"
                 >
                   {isGenerating ? (
                     <>
@@ -196,79 +181,253 @@ const PracticeInterviewQuestions = () => {
                   )}
                 </Button>
               </div>
-            </>
-          ) : (
-            <>
-              {/* Progress Tracker */}
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Practice Progress</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {practicedCount} / {totalQuestions} Questions
-                    </p>
-                  </div>
-                  <Button onClick={handleGenerate} variant="outline">
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Generate New Set
-                  </Button>
-                </div>
-              </Card>
+            </Card>
+          )}
 
-              {/* Weak Areas */}
-              {interviewData.weakAreas.length > 0 && (
-                <Card className="p-6 bg-accent/5 border-accent/20">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Target className="h-5 w-5 text-accent" />
-                    Areas to Focus On
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {interviewData.weakAreas.map((area, index) => (
-                      <Badge key={index} variant="secondary" className="text-sm">
-                        {area}
-                      </Badge>
-                    ))}
+          {/* Results Section */}
+          {questions && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Weak Areas Section */}
+              {questions.weakAreas && questions.weakAreas.length > 0 && (
+                <Card className="p-6 bg-muted/50 border-2 border-primary/20 shadow-card">
+                  <div className="flex items-start gap-3">
+                    <Lightbulb className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="space-y-3 flex-1">
+                      <h3 className="font-semibold text-xl">Weak Areas to Prepare For</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Based on your target role and job description, focus on these key areas:
+                      </p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {questions.weakAreas.map((area, index) => (
+                          <Badge key={index} variant="secondary" className="text-sm py-2 px-3">
+                            {area}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </Card>
               )}
 
+              {/* Progress Tracker */}
+              <Card className="p-6 shadow-card">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      Your Progress
+                    </h3>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {practicedQuestions.size} of {totalQuestions} Practiced
+                    </span>
+                  </div>
+                  <Progress value={progressPercentage} className="h-3" />
+                </div>
+              </Card>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center flex-wrap">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    setQuestions(null);
+                    generateQuestions();
+                  }}
+                  className="gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Regenerate Questions
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleReset}
+                  className="gap-2"
+                >
+                  Start Over
+                </Button>
+              </div>
+
               {/* Questions Tabs */}
-              <Tabs defaultValue="behavioral" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="behavioral">
-                    Behavioral Questions ({interviewData.behavioral.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="technical">
-                    Technical Questions ({interviewData.technical.length})
-                  </TabsTrigger>
-                </TabsList>
+              <Card className="p-8 shadow-card">
+                <Tabs defaultValue="behavioral" className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-2 h-12">
+                    <TabsTrigger value="behavioral" className="text-base">
+                      Behavioral ({questions.behavioral.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="technical" className="text-base">
+                      Technical ({questions.technical.length})
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="behavioral" className="space-y-4 mt-6">
-                  {interviewData.behavioral.map((q, index) => (
-                    <QuestionCard
-                      key={`behavioral-${index}`}
-                      question={q}
-                      id={`behavioral-${index}`}
-                      type="behavioral"
-                    />
-                  ))}
-                </TabsContent>
+                  <TabsContent value="behavioral" className="space-y-4 mt-6">
+                    <Accordion type="single" collapsible className="space-y-4">
+                      {questions.behavioral.map((q, index) => {
+                        const questionId = index;
+                        const isPracticed = practicedQuestions.has(questionId);
+                        
+                        return (
+                          <AccordionItem
+                            key={index}
+                            value={`behavioral-${index}`}
+                            className={`border-2 rounded-lg px-6 py-3 transition-all ${
+                              isPracticed 
+                                ? 'opacity-60 border-primary/30 bg-muted/30' 
+                                : 'hover:border-primary/50 hover:shadow-md'
+                            }`}
+                          >
+                            <AccordionTrigger className="hover:no-underline py-3">
+                              <div className="flex items-start gap-3 text-left w-full">
+                                {isPracticed && (
+                                  <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                                )}
+                                <div className="space-y-2 flex-1">
+                                  <p className={`font-semibold text-base ${isPracticed ? 'line-through' : ''}`}>
+                                    {q.question}
+                                  </p>
+                                  {isPracticed && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      ✓ Practiced
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-4 space-y-4">
+                              <div className="space-y-4">
+                                <div className="bg-muted/50 p-6 rounded-lg space-y-3 border border-border">
+                                  <h4 className="font-semibold text-sm text-primary uppercase tracking-wide">
+                                    Sample Answer (STAR Method)
+                                  </h4>
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                                    {q.answer}
+                                  </p>
+                                </div>
+                                
+                                {q.coachingTip && (
+                                  <div className="bg-primary/5 p-4 rounded-lg border-l-4 border-primary">
+                                    <p className="text-xs font-medium flex items-start gap-2">
+                                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                                      <span><strong>AI Tip:</strong> {q.coachingTip}</span>
+                                    </p>
+                                  </div>
+                                )}
 
-                <TabsContent value="technical" className="space-y-4 mt-6">
-                  {interviewData.technical.map((q, index) => (
-                    <QuestionCard
-                      key={`technical-${index}`}
-                      question={q}
-                      id={`technical-${index}`}
-                      type="technical"
-                    />
-                  ))}
-                </TabsContent>
-              </Tabs>
-            </>
+                                <div className="flex gap-2 pt-2 flex-wrap">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => regenerateAnswer(index, 'behavioral')}
+                                    className="gap-2"
+                                  >
+                                    <RefreshCw className="h-3 w-3" />
+                                    Regenerate Answer
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant={isPracticed ? "secondary" : "default"}
+                                    onClick={() => togglePracticed(questionId)}
+                                    className="gap-2"
+                                  >
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    {isPracticed ? 'Unpractice' : 'Mark as Practiced'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
+                  </TabsContent>
+
+                  <TabsContent value="technical" className="space-y-4 mt-6">
+                    <Accordion type="single" collapsible className="space-y-4">
+                      {questions.technical.map((q, index) => {
+                        const questionId = questions.behavioral.length + index;
+                        const isPracticed = practicedQuestions.has(questionId);
+                        
+                        return (
+                          <AccordionItem
+                            key={index}
+                            value={`technical-${index}`}
+                            className={`border-2 rounded-lg px-6 py-3 transition-all ${
+                              isPracticed 
+                                ? 'opacity-60 border-primary/30 bg-muted/30' 
+                                : 'hover:border-primary/50 hover:shadow-md'
+                            }`}
+                          >
+                            <AccordionTrigger className="hover:no-underline py-3">
+                              <div className="flex items-start gap-3 text-left w-full">
+                                {isPracticed && (
+                                  <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                                )}
+                                <div className="space-y-2 flex-1">
+                                  <p className={`font-semibold text-base ${isPracticed ? 'line-through' : ''}`}>
+                                    {q.question}
+                                  </p>
+                                  {isPracticed && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      ✓ Practiced
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-4 space-y-4">
+                              <div className="space-y-4">
+                                <div className="bg-muted/50 p-6 rounded-lg space-y-3 border border-border">
+                                  <h4 className="font-semibold text-sm text-primary uppercase tracking-wide">
+                                    Sample Answer
+                                  </h4>
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                                    {q.answer}
+                                  </p>
+                                </div>
+                                
+                                {q.coachingTip && (
+                                  <div className="bg-primary/5 p-4 rounded-lg border-l-4 border-primary">
+                                    <p className="text-xs font-medium flex items-start gap-2">
+                                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                                      <span><strong>AI Tip:</strong> {q.coachingTip}</span>
+                                    </p>
+                                  </div>
+                                )}
+
+                                <div className="flex gap-2 pt-2 flex-wrap">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => regenerateAnswer(index, 'technical')}
+                                    className="gap-2"
+                                  >
+                                    <RefreshCw className="h-3 w-3" />
+                                    Regenerate Answer
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant={isPracticed ? "secondary" : "default"}
+                                    onClick={() => togglePracticed(questionId)}
+                                    className="gap-2"
+                                  >
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    {isPracticed ? 'Unpractice' : 'Mark as Practiced'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
+                  </TabsContent>
+                </Tabs>
+              </Card>
+            </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };

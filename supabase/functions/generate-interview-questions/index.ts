@@ -11,144 +11,162 @@ serve(async (req) => {
   }
 
   try {
-    const { resume, jobDescription } = await req.json();
+    const { targetRole, targetCompany, jobDescription } = await req.json();
 
-    if (!resume || !jobDescription) {
+    if (!targetRole || !targetCompany || !jobDescription) {
       return new Response(
-        JSON.stringify({ error: "Resume and job description are required" }),
+        JSON.stringify({ error: 'All fields are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
+      console.error('LOVABLE_API_KEY not configured');
       return new Response(
-        JSON.stringify({ error: "AI service not configured" }),
+        JSON.stringify({ error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const systemPrompt = `You are an expert career coach specializing in interview preparation. Your task is to:
-1. Analyze the candidate's resume and the target job description
-2. Generate 8-12 highly relevant interview questions (split between behavioral and technical)
-3. Provide STAR method answers tailored to the candidate's background
-4. Identify 2-3 weak areas or skill gaps to focus on
+    const systemPrompt = `You are an expert interview coach and career advisor. Your task is to predict likely interview questions based on a target role, company, and job description, then provide coached answers using the STAR method.
 
-Return a JSON object with this exact structure:
+Generate 8-12 interview questions split into:
+- 5-6 Behavioral Questions (teamwork, leadership, communication, problem-solving, conflict resolution)
+- 5-6 Technical/Role-Specific Questions (based on job requirements, tools, technologies, domain knowledge)
+
+For EACH question, provide:
+1. The question itself (make it realistic and specific to the role/company)
+2. A sample answer using STAR method for behavioral questions (Situation, Task, Action, Result) or clear technical explanation for technical questions
+3. A practical coaching tip to enhance the answer
+
+Also identify 2-3 weak areas or key topics the candidate should focus on preparing based on the job description.
+
+Return a JSON object with this structure:
 {
   "behavioral": [
     {
       "question": "string",
-      "answer": "string (using STAR: Situation, Task, Action, Result format)",
-      "coachingTip": "string (one actionable tip)"
+      "answer": "string (STAR format with clear sections)",
+      "coachingTip": "string"
     }
   ],
   "technical": [
     {
-      "question": "string",
-      "answer": "string (specific to their experience)",
-      "coachingTip": "string (one actionable tip)"
+      "question": "string", 
+      "answer": "string (clear technical explanation)",
+      "coachingTip": "string"
     }
   ],
   "weakAreas": ["string", "string", "string"]
 }`;
 
-    const userPrompt = `Resume:\n${resume}\n\nJob Description:\n${jobDescription}\n\nGenerate interview questions and STAR method answers.`;
+    const userPrompt = `Generate interview questions and coached answers for:
 
-    console.log("Calling Lovable AI for interview questions...");
+**TARGET ROLE:**
+${targetRole}
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
+**TARGET COMPANY:**
+${targetCompany}
+
+**JOB DESCRIPTION:**
+${jobDescription}
+
+Return ONLY valid JSON (no markdown, no code blocks).`;
+
+    console.log('Calling Lovable AI for interview questions...');
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: 'google/gemini-2.5-flash',
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
         ],
         tools: [
           {
-            type: "function",
+            type: 'function',
             function: {
-              name: "generate_interview_questions",
-              description: "Generate interview questions with STAR method answers",
+              name: 'generate_interview_questions',
+              description: 'Generate interview questions with STAR method answers',
               parameters: {
-                type: "object",
+                type: 'object',
                 properties: {
                   behavioral: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        question: { type: "string" },
-                        answer: { type: "string" },
-                        coachingTip: { type: "string" }
+                        question: { type: 'string' },
+                        answer: { type: 'string' },
+                        coachingTip: { type: 'string' }
                       },
-                      required: ["question", "answer", "coachingTip"]
+                      required: ['question', 'answer', 'coachingTip']
                     }
                   },
                   technical: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        question: { type: "string" },
-                        answer: { type: "string" },
-                        coachingTip: { type: "string" }
+                        question: { type: 'string' },
+                        answer: { type: 'string' },
+                        coachingTip: { type: 'string' }
                       },
-                      required: ["question", "answer", "coachingTip"]
+                      required: ['question', 'answer', 'coachingTip']
                     }
                   },
                   weakAreas: {
-                    type: "array",
-                    items: { type: "string" }
+                    type: 'array',
+                    items: { type: 'string' }
                   }
                 },
-                required: ["behavioral", "technical", "weakAreas"]
+                required: ['behavioral', 'technical', 'weakAreas']
               }
             }
           }
         ],
-        tool_choice: { type: "function", function: { name: "generate_interview_questions" } }
+        tool_choice: { type: 'function', function: { name: 'generate_interview_questions' } }
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
+      console.error('Lovable AI error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Payment required. Please add credits to your workspace." }),
+          JSON.stringify({ error: 'Payment required. Please add credits to your workspace.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
       return new Response(
-        JSON.stringify({ error: "Failed to generate interview questions" }),
+        JSON.stringify({ error: 'Failed to generate interview questions' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await response.json();
-    console.log("Lovable AI response received");
+    console.log('Lovable AI response received');
 
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
-      console.error("No tool call in response");
+      console.error('No tool call in response');
       return new Response(
-        JSON.stringify({ error: "Invalid AI response format" }),
+        JSON.stringify({ error: 'Invalid AI response format' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -161,9 +179,9 @@ Return a JSON object with this exact structure:
     );
 
   } catch (error) {
-    console.error("Error in generate-interview-questions:", error);
+    console.error('Error in generate-interview-questions:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
