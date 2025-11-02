@@ -116,7 +116,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
 
-      <main className="container mx-auto px-4 py-8 animate-fade-in">
+      <main className="container mx-auto px-4 py-16 animate-fade-in">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-4">
