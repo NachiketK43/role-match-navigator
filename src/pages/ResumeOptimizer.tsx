@@ -82,9 +82,9 @@ const ResumeOptimizer = () => {
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#343434]">
               AI-Powered Resume
-              <span className="text-[hsl(45,97%,54%)]"> Optimizer</span>
+              <span className="text-primary"> Optimizer</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Get actionable insights, rewrites, and ATS feedback to improve your hiring chances.
