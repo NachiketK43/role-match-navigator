@@ -15,7 +15,7 @@ const Upload = () => {
       <section className="container mx-auto px-6 py-20 md:py-28">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-            Get Hired Faster with <span className="text-accent">AI</span>
+            Get Hired Faster with <span className="text-primary">AI</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             NextHire helps you craft job-winning resumes, tailored cover letters, and interview answers — all powered by AI.
