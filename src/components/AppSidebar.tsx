@@ -26,18 +26,8 @@ import {
 } from "@/components/ui/sidebar"
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "AI Career Coach", url: "/ai-career-coach", icon: Briefcase },
-  { title: "AI Resume Builder", url: "/ai-resume-builder", icon: FileText },
-  { title: "Job Specific Resume", url: "/job-specific-resume", icon: FileSpreadsheet },
-  { title: "Optimise Resume", url: "/resume-optimizer", icon: Sparkles },
-  { title: "Optimise LinkedIn", url: "/optimise-linkedin", icon: Linkedin },
-  { title: "Job Search AI Agent", url: "/job-search-ai-agent", icon: Building2 },
-  { title: "AI Outreach Templates", url: "/ai-outreach-templates", icon: Send },
-  { title: "Mock Interview AI Agent", url: "/mock-interview-ai-agent", icon: Mic },
-  { title: "Interview Preparation Hub", url: "/interview-preparation-hub", icon: Target },
-  { title: "Interview Question Bank", url: "/interview-question-bank", icon: BookOpen },
-  { title: "Book a Mentorship Call", url: "/book-mentorship-call", icon: Calendar },
+  { title: "Skill Gap", url: "/dashboard", icon: Target },
+  { title: "Resume Optimizer", url: "/resume-optimizer", icon: Sparkles },
 ]
 
 export function AppSidebar() {
@@ -46,10 +36,10 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="border-r bg-[#fafafa]">
+      <SidebarContent className="bg-[#fafafa]">
         {/* Logo Section */}
-        <div className="px-4 py-6 border-b">
+        <div className="px-4 py-6 border-b bg-[#fafafa]">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-accent-foreground" />
@@ -57,7 +47,7 @@ export function AppSidebar() {
             {!isCollapsed && (
               <div>
                 <h2 className="font-bold text-accent text-lg">Land Better Jobs</h2>
-                <p className="text-xs text-muted-foreground">Your AI Career Copilot</p>
+                <p className="text-xs text-gray-600">Your AI Career Copilot</p>
               </div>
             )}
           </div>
@@ -80,7 +70,7 @@ export function AppSidebar() {
                         className={({ isActive }) =>
                           isActive
                             ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                            : "hover:bg-accent/10 hover:text-accent-foreground"
+                            : "text-gray-700 hover:bg-primary/10 hover:text-primary"
                         }
                       >
                         <item.icon className="h-4 w-4" />
