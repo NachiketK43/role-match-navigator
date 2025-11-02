@@ -115,16 +115,19 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive}
                       tooltip={isCollapsed ? item.title : undefined}
+                      className="h-11"
                     >
                       <NavLink
                         to={item.url}
                         className={({ isActive }) =>
-                          isActive
-                            ? "bg-primary text-[#343434] hover:bg-primary hover:text-[#343434]"
-                            : "text-[#343434] hover:bg-primary/10 hover:text-[#343434]"
+                          `text-[14px] leading-relaxed ${
+                            isActive
+                              ? "bg-primary text-[#343434] hover:bg-primary hover:text-[#343434]"
+                              : "text-[#343434] hover:bg-primary/10 hover:text-[#343434]"
+                          }`
                         }
                       >
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
