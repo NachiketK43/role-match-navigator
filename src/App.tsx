@@ -14,12 +14,6 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import ResumeOptimizer from "./pages/ResumeOptimizer";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
-import AIOutreachTemplates from "./pages/AIOutreachTemplates";
-import MockInterviewAIAgent from "./pages/MockInterviewAIAgent";
-import InterviewPreparationHub from "./pages/InterviewPreparationHub";
-import InterviewQuestionBank from "./pages/InterviewQuestionBank";
-import BookMentorshipCall from "./pages/BookMentorshipCall";
-import PracticeInterviewQuestions from "./pages/PracticeInterviewQuestions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,66 +57,6 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <CoverLetterGenerator />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ai-outreach-templates"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <AIOutreachTemplates />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/mock-interview-ai-agent"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <MockInterviewAIAgent />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/interview-preparation-hub"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <InterviewPreparationHub />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/interview-question-bank"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <InterviewQuestionBank />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/book-mentorship-call"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <BookMentorshipCall />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/practice-interview-questions"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <PracticeInterviewQuestions />
                   </AppLayout>
                 </ProtectedRoute>
               }

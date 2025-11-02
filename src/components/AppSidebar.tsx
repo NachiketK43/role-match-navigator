@@ -14,7 +14,6 @@ import {
   Calendar,
   LogOut,
   Mail,
-  MessageSquare,
 } from "lucide-react"
 
 import {
@@ -39,7 +38,6 @@ const menuItems = [
   { title: "Skill Gap", url: "/dashboard", icon: Target },
   { title: "Resume Optimizer", url: "/resume-optimizer", icon: Sparkles },
   { title: "Cover Letter Generator", url: "/cover-letter-generator", icon: Mail },
-  { title: "Practice Interview Questions", url: "/practice-interview-questions", icon: MessageSquare },
 ]
 
 export function AppSidebar() {
