@@ -140,30 +140,37 @@ export function AppSidebar() {
       <SidebarFooter className="bg-[#fafafa] border-t p-4">
         {user && (
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {fullName ? getInitials(fullName) : "U"}
-              </AvatarFallback>
-            </Avatar>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#343434] truncate">
-                  {fullName || "User"}
-                </p>
-                <p className="text-xs text-[#343434]/70 truncate">
-                  {user.email}
-                </p>
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSignOut}
-              className="h-8 w-8 text-[#343434] hover:text-primary hover:bg-primary/10"
-              title="Sign out"
+            <div
+              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate("/profile")}
             >
-              <LogOut className="h-4 w-4" />
-            </Button>
+              <Avatar className="h-10 w-10">
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {fullName ? getInitials(fullName) : "U"}
+                </AvatarFallback>
+              </Avatar>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#343434] truncate">
+                    {fullName || "User"}
+                  </p>
+                  <p className="text-xs text-[#343434]/70 truncate">
+                    {user.email}
+                  </p>
+                </div>
+              )}
+            </div>
+            {!isCollapsed && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
+                className="h-8 w-8 text-[#343434] hover:text-primary hover:bg-primary/10"
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         )}
       </SidebarFooter>

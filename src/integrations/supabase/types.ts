@@ -16,22 +16,43 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          career_goals: string | null
+          company: string | null
           created_at: string
           email: string
           full_name: string | null
           id: string
+          linkedin_url: string | null
+          portfolio_url: string | null
+          profile_picture_url: string | null
+          role: string | null
+          years_of_experience: number | null
         }
         Insert: {
+          career_goals?: string | null
+          company?: string | null
           created_at?: string
           email: string
           full_name?: string | null
           id: string
+          linkedin_url?: string | null
+          portfolio_url?: string | null
+          profile_picture_url?: string | null
+          role?: string | null
+          years_of_experience?: number | null
         }
         Update: {
+          career_goals?: string | null
+          company?: string | null
           created_at?: string
           email?: string
           full_name?: string | null
           id?: string
+          linkedin_url?: string | null
+          portfolio_url?: string | null
+          profile_picture_url?: string | null
+          role?: string | null
+          years_of_experience?: number | null
         }
         Relationships: []
       }
