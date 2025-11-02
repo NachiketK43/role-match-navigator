@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, FileText, MessageSquare, Target, BarChart3, Upload as UploadIcon, CheckCircle2 } from "lucide-react";
 import Header from "@/components/Header";
+import dashboardPreview from "@/assets/dashboard-preview.png";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -149,11 +150,12 @@ const Upload = () => {
                 Start Your Free Trial
               </Button>
             </div>
-            <div className="bg-muted/50 rounded-lg border-2 border-dashed border-border h-80 flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto" />
-                <p className="text-muted-foreground">Dashboard Preview</p>
-              </div>
+            <div className="rounded-lg border border-border overflow-hidden shadow-elevated">
+              <img 
+                src={dashboardPreview} 
+                alt="NextHire Dashboard Preview showing resume optimization and career analytics" 
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>
