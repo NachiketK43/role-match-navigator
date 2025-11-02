@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import ResumeOptimizer from "./pages/ResumeOptimizer";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
+import PracticeInterviewQuestions from "./pages/PracticeInterviewQuestions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <CoverLetterGenerator />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/practice-interview-questions"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PracticeInterviewQuestions />
                   </AppLayout>
                 </ProtectedRoute>
               }
