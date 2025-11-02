@@ -1,130 +1,263 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
-import { Sparkles, FileText } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles, FileText, MessageSquare, Target, BarChart3, Upload as UploadIcon, CheckCircle2, Users, Quote } from "lucide-react";
 import Header from "@/components/Header";
 
 const Upload = () => {
   const navigate = useNavigate();
-  const [resume, setResume] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const handleAnalyze = async () => {
-    if (!resume.trim() || !jobDescription.trim()) {
-      toast.error("Please fill in both fields");
-      return;
-    }
-
-    setIsAnalyzing(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('analyze-skill-gap', {
-        body: { resume, jobDescription }
-      });
-
-      if (error) {
-        console.error("Analysis error:", error);
-        toast.error("Analysis failed. Please try again.");
-        setIsAnalyzing(false);
-        return;
-      }
-
-      if (!data?.analysis) {
-        toast.error("Invalid analysis response");
-        setIsAnalyzing(false);
-        return;
-      }
-
-      navigate("/analysis", { 
-        state: { 
-          analysis: data.analysis
-        } 
-      });
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-16">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Hero Section */}
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Understand your fit.
-              <span className="text-accent"> Instantly.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              No guesswork. Just clear, data-backed insights on where you stand and how to grow.
-            </p>
-          </div>
-
-          {/* Two Column Input */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Resume Input */}
-            <Card className="p-6 space-y-4 shadow-card hover:shadow-elevated transition-shadow">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                <h3 className="font-semibold text-lg">Your Resume</h3>
-              </div>
-              <Textarea
-                placeholder="Paste your resume here..."
-                className="min-h-[400px] resize-none font-mono text-sm"
-                value={resume}
-                onChange={(e) => setResume(e.target.value)}
-              />
-            </Card>
-
-            {/* Job Description Input */}
-            <Card className="p-6 space-y-4 shadow-card hover:shadow-elevated transition-shadow">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-accent" />
-                <h3 className="font-semibold text-lg">Job Description</h3>
-              </div>
-              <Textarea
-                placeholder="Paste the job description here..."
-                className="min-h-[400px] resize-none font-mono text-sm"
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-              />
-            </Card>
-          </div>
-
-          {/* CTA */}
-          <div className="flex justify-center pt-8">
+      {/* Hero Section */}
+      <section className="container mx-auto px-6 py-20 md:py-28">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+            Get Hired Faster with <span className="text-accent">AI</span>
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            NextHire helps you craft job-winning resumes, tailored cover letters, and interview answers — all powered by AI.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Button
               size="lg"
-              className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary-glow shadow-elevated hover:shadow-accent transition-all"
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
+              className="px-8 py-6 text-lg font-semibold shadow-elevated hover:shadow-accent"
+              onClick={() => navigate('/signup')}
             >
-              {isAnalyzing ? (
-                <>
-                  <Sparkles className="mr-2 h-5 w-5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  Analyze My Fit
-                  <Sparkles className="ml-2 h-5 w-5" />
-                </>
-              )}
+              Get Started Free
+              <Sparkles className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="px-8 py-6 text-lg font-semibold"
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              See How It Works
             </Button>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="container mx-auto px-6 py-16 bg-background/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+            <p className="text-lg text-muted-foreground">Three simple steps to land your dream job</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <UploadIcon className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Upload Resume</CardTitle>
+                <CardDescription>
+                  Let AI scan and evaluate your resume for strengths and opportunities.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-accent" />
+                </div>
+                <CardTitle>Optimize for Any Job</CardTitle>
+                <CardDescription>
+                  Match your resume to any job description with keyword suggestions and tailored improvements.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center mb-4">
+                  <MessageSquare className="h-6 w-6 text-success" />
+                </div>
+                <CardTitle>Prepare for Interviews</CardTitle>
+                <CardDescription>
+                  Get likely interview questions and AI-coached answers tailored to your role.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Features Section */}
+      <section className="container mx-auto px-6 py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Everything You Need to Land Your Dream Job
+            </h2>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <FileText className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Resume Optimizer</CardTitle>
+                <CardDescription>
+                  AI-powered analysis to perfect your resume for any role
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <MessageSquare className="h-8 w-8 text-accent mb-2" />
+                <CardTitle className="text-lg">Smart Cover Letter Generator</CardTitle>
+                <CardDescription>
+                  Create personalized cover letters in seconds
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <CheckCircle2 className="h-8 w-8 text-success mb-2" />
+                <CardTitle className="text-lg">Interview Question Predictor</CardTitle>
+                <CardDescription>
+                  Practice with AI-generated interview questions
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="shadow-card hover:shadow-elevated transition-all">
+              <CardHeader>
+                <BarChart3 className="h-8 w-8 text-info mb-2" />
+                <CardTitle className="text-lg">Career Analytics Dashboard</CardTitle>
+                <CardDescription>
+                  Track your progress and see where you stand
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Visual Demo Section */}
+      <section className="container mx-auto px-6 py-16 bg-background/50">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-4xl font-bold">
+                See how NextHire simplifies every step
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                From resume optimization to offer letter — NextHire is your AI-powered career partner that helps you stand out in every application.
+              </p>
+              <Button size="lg" className="mt-4" onClick={() => navigate('/signup')}>
+                Start Your Free Trial
+              </Button>
+            </div>
+            <div className="bg-muted/50 rounded-lg border-2 border-dashed border-border h-80 flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto" />
+                <p className="text-muted-foreground">Dashboard Preview</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="container mx-auto px-6 py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Real Professionals. Real Results.</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="shadow-card">
+              <CardHeader>
+                <Quote className="h-8 w-8 text-accent mb-4" />
+                <CardDescription className="text-base italic">
+                  "NextHire helped me land 3 interviews in my first week. The resume optimizer is a game-changer!"
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Sarah Johnson</p>
+                    <p className="text-sm text-muted-foreground">Product Manager</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card">
+              <CardHeader>
+                <Quote className="h-8 w-8 text-accent mb-4" />
+                <CardDescription className="text-base italic">
+                  "The interview prep feature gave me the confidence I needed. I got the job on my second interview!"
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Michael Chen</p>
+                    <p className="text-sm text-muted-foreground">Software Engineer</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card">
+              <CardHeader>
+                <Quote className="h-8 w-8 text-accent mb-4" />
+                <CardDescription className="text-base italic">
+                  "I never knew my resume had so many issues. NextHire fixed them all and got me hired faster."
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Emily Rodriguez</p>
+                    <p className="text-sm text-muted-foreground">Marketing Specialist</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Call-to-Action Section */}
+      <section className="container mx-auto px-6 py-20 md:py-28">
+        <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-primary rounded-2xl p-12 md:p-16 shadow-accent">
+          <h2 className="text-4xl md:text-5xl font-bold text-white">
+            Ready to Land Your Next Hire?
+          </h2>
+          <p className="text-xl text-white/90 max-w-2xl mx-auto">
+            Start optimizing your career today — it's completely free.
+          </p>
+          <Button
+            size="lg"
+            variant="secondary"
+            className="px-8 py-6 text-lg font-semibold mt-6"
+            onClick={() => navigate('/signup')}
+          >
+            Get Started Now
+            <Sparkles className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+      </section>
     </div>
   );
 };
