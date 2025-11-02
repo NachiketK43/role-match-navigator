@@ -52,9 +52,8 @@ const Header = () => {
   };
 
   const navItems = [
-    { path: '/', label: 'Home' },
-    { path: '/analysis', label: 'Analysis' },
-    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/dashboard', label: 'Skill Gap' },
+    { path: '/resume-optimizer', label: 'Resume Optimizer' },
   ];
 
   return (

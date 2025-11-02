@@ -3,5 +3,8 @@ project_id = "oocglurxdslnhuxvbghh"
 [functions.analyze-skill-gap]
 verify_jwt = false
 
+[functions.optimize-resume]
+verify_jwt = false
+
 [functions.parse-document]
 verify_jwt = false
