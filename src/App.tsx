@@ -14,11 +14,6 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import ResumeOptimizer from "./pages/ResumeOptimizer";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
-import AICareerCoach from "./pages/AICareerCoach";
-import AIResumeBuilder from "./pages/AIResumeBuilder";
-import JobSpecificResume from "./pages/JobSpecificResume";
-import OptimiseLinkedin from "./pages/OptimiseLinkedin";
-import JobSearchAIAgent from "./pages/JobSearchAIAgent";
 import AIOutreachTemplates from "./pages/AIOutreachTemplates";
 import MockInterviewAIAgent from "./pages/MockInterviewAIAgent";
 import InterviewPreparationHub from "./pages/InterviewPreparationHub";
@@ -68,56 +63,6 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <CoverLetterGenerator />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ai-career-coach"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <AICareerCoach />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ai-resume-builder"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <AIResumeBuilder />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/job-specific-resume"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <JobSpecificResume />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/optimise-linkedin"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <OptimiseLinkedin />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/job-search-ai-agent"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <JobSearchAIAgent />
                   </AppLayout>
                 </ProtectedRoute>
               }
