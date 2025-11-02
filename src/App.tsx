@@ -7,7 +7,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import Upload from "./pages/Upload";
-import Analysis from "./pages/Analysis";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -28,7 +27,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Upload />} />
-            <Route path="/analysis" element={<Analysis />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
