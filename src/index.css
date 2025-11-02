@@ -10,33 +10,33 @@ All colors MUST be HSL.
   :root {
     /* SkillLens Design System - Precision & Confidence */
     
-    /* Core Colors - Deep Navy + Electric Cyan */
-    --background: 210 25% 97%;
-    --foreground: 210 60% 8%;
+    /* Core Colors - Professional Blue */
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 60% 8%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 60% 8%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Primary - Deep Navy */
-    --primary: 210 60% 8%;
-    --primary-foreground: 210 25% 97%;
-    --primary-glow: 210 60% 18%;
+    /* Primary - Professional Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 70%;
 
-    /* Accent - Electric Cyan */
-    --accent: 195 100% 50%;
-    --accent-foreground: 210 60% 8%;
-    --accent-glow: 195 100% 60%;
+    /* Accent - Orange */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-glow: 25 95% 63%;
 
-    /* Secondary - Muted Navy */
-    --secondary: 210 20% 85%;
-    --secondary-foreground: 210 60% 8%;
+    /* Secondary - Muted Blue */
+    --secondary: 210 20% 88%;
+    --secondary-foreground: 222 47% 11%;
 
     /* Muted - Subtle Backgrounds */
-    --muted: 210 20% 92%;
-    --muted-foreground: 210 15% 45%;
+    --muted: 210 20% 95%;
+    --muted-foreground: 215 16% 47%;
 
     /* Semantic Colors */
     --success: 122 39% 49%;
@@ -52,22 +52,22 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 210 20% 88%;
-    --input: 210 20% 92%;
-    --ring: 195 100% 50%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
 
     /* Radius */
     --radius: 0.5rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210, 60%, 8%), hsl(210, 60%, 18%));
-    --gradient-accent: linear-gradient(135deg, hsl(195, 100%, 50%), hsl(195, 100%, 60%));
-    --gradient-subtle: linear-gradient(180deg, hsl(210, 25%, 97%), hsl(210, 20%, 92%));
+    --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(217, 91%, 70%));
+    --gradient-accent: linear-gradient(135deg, hsl(25, 95%, 53%), hsl(25, 95%, 63%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 98%), hsl(210, 20%, 95%));
 
     /* Shadows - Analytical Precision */
-    --shadow-card: 0 2px 8px -2px hsl(210 60% 8% / 0.08);
-    --shadow-elevated: 0 8px 24px -4px hsl(210 60% 8% / 0.12);
-    --shadow-accent: 0 0 32px hsl(195 100% 50% / 0.15);
+    --shadow-card: 0 2px 8px -2px hsl(217 91% 60% / 0.08);
+    --shadow-elevated: 0 8px 24px -4px hsl(217 91% 60% / 0.12);
+    --shadow-accent: 0 0 32px hsl(217 91% 60% / 0.15);
 
     /* Transitions */
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,28 +75,28 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 210 60% 8%;
-    --foreground: 210 25% 97%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 210 50% 12%;
-    --card-foreground: 210 25% 97%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 210 50% 12%;
-    --popover-foreground: 210 25% 97%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 210 25% 97%;
-    --primary-foreground: 210 60% 8%;
-    --primary-glow: 210 25% 87%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 70%;
 
-    --accent: 195 100% 50%;
-    --accent-foreground: 210 60% 8%;
-    --accent-glow: 195 100% 60%;
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-glow: 25 95% 63%;
 
-    --secondary: 210 40% 20%;
-    --secondary-foreground: 210 25% 97%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 18%;
-    --muted-foreground: 210 15% 65%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
     --success: 122 39% 49%;
     --success-foreground: 0 0% 100%;
@@ -110,13 +110,13 @@ All colors MUST be HSL.
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 40% 25%;
-    --input: 210 40% 20%;
-    --ring: 195 100% 50%;
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+    --ring: 217 91% 60%;
 
     --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
     --shadow-elevated: 0 8px 24px -4px hsl(0 0% 0% / 0.4);
-    --shadow-accent: 0 0 32px hsl(195 100% 50% / 0.25);
+    --shadow-accent: 0 0 32px hsl(217 91% 60% / 0.25);
   }
 }
 

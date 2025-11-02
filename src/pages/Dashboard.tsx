@@ -9,7 +9,6 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User, FileText, Sparkles, CheckCircle2, AlertCircle, BookOpen } from 'lucide-react';
-import Header from '@/components/Header';
 
 interface Profile {
   email: string;
@@ -114,9 +113,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <Header />
-
-      <main className="container mx-auto px-4 py-16 animate-fade-in">
+      <div className="container mx-auto px-4 py-16 animate-fade-in">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-4">
@@ -299,7 +296,7 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };
