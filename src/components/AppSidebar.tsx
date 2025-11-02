@@ -13,6 +13,7 @@ import {
   BookOpen,
   Calendar,
   LogOut,
+  Mail,
 } from "lucide-react"
 
 import {
@@ -36,6 +37,7 @@ import { supabase } from "@/integrations/supabase/client"
 const menuItems = [
   { title: "Skill Gap", url: "/dashboard", icon: Target },
   { title: "Resume Optimizer", url: "/resume-optimizer", icon: Sparkles },
+  { title: "Cover Letter Generator", url: "/cover-letter-generator", icon: Mail },
 ]
 
 export function AppSidebar() {

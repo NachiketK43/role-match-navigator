@@ -8,7 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
-import { CoverLetterGenerator } from '@/components/CoverLetterGenerator';
 
 interface KeywordInsight {
   keyword: string;
@@ -270,13 +269,6 @@ const ResumeOptimizer = () => {
                   ))}
                 </div>
               </Card>
-
-              {/* Cover Letter Generator */}
-              <CoverLetterGenerator 
-                resume={resume}
-                jobDescription={jobDescription}
-                analysisResult={analysisResult}
-              />
             </div>
           )}
         </div>

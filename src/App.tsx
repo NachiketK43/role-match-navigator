@@ -13,6 +13,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import ResumeOptimizer from "./pages/ResumeOptimizer";
+import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import AICareerCoach from "./pages/AICareerCoach";
 import AIResumeBuilder from "./pages/AIResumeBuilder";
 import JobSpecificResume from "./pages/JobSpecificResume";
@@ -56,6 +57,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <ResumeOptimizer />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cover-letter-generator"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <CoverLetterGenerator />
                   </AppLayout>
                 </ProtectedRoute>
               }
