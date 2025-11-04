@@ -32,8 +32,8 @@ const PracticeInterviewQuestions = () => {
   const [practicedQuestions, setPracticedQuestions] = useState<Set<number>>(new Set());
 
   const generateQuestions = async () => {
-    if (!targetRole.trim() || !targetCompany.trim() || !jobDescription.trim()) {
-      toast.error('Please fill in all fields');
+    if (!targetRole.trim() || !targetCompany.trim()) {
+      toast.error('Please fill in Target Role and Target Company');
       return;
     }
 
@@ -143,17 +143,17 @@ const PracticeInterviewQuestions = () => {
                 <div className="space-y-3">
                   <Label htmlFor="jobDescription" className="flex items-center gap-2 text-base">
                     <FileText className="h-4 w-4 text-primary" />
-                    Job Description
+                    Job Description <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
                   </Label>
                   <Textarea
                     id="jobDescription"
-                    placeholder="Paste the complete job description here..."
+                    placeholder="Paste the complete job description here (optional - AI will infer based on role and company if not provided)..."
                     className="min-h-[250px] resize-y"
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Include requirements, responsibilities, and qualifications for best results
+                    For best results, include requirements, responsibilities, and qualifications. If omitted, questions will be based on the role and company's typical expectations.
                   </p>
                 </div>
               </div>
