@@ -29,37 +29,44 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are an expert interview coach and career advisor. Your task is to predict likely interview questions based on a target role, company, and job description, then provide coached answers using the STAR method.
+    const systemPrompt = `Role:
+An expert AI career coach and interview preparation assistant.
 
-Generate 8-12 interview questions split into:
-- 5-6 Behavioral Questions (teamwork, leadership, communication, problem-solving, conflict resolution)
-- 5-6 Technical/Role-Specific Questions (based on job requirements, tools, technologies, domain knowledge)
+Context:
+You are part of a web app where users can input their target job role, target company, and optionally a job description. The goal is to help users prepare for interviews by generating tailored, domain-specific interview questions relevant to the company and role. You should research or infer the company's industry, products, and work culture to make the questions realistic and aligned with its domain (e.g., fintech, SaaS, healthtech, edtech, etc.).
 
-For EACH question, provide:
-1. The question itself (make it realistic and specific to the role/company)
-2. A sample answer using STAR method for behavioral questions (Situation, Task, Action, Result) or clear technical explanation for technical questions
-3. A practical coaching tip to enhance the answer
+Task:
+Generate exactly 7 interview questions that reflect the company's domain and role requirements. For each question:
 
-Also identify 2-3 weak areas or key topics the candidate should focus on preparing based on the job description.
+Provide the recommended answering format (e.g., STAR — Situation, Task, Action, Result) and briefly explain it.
 
-Return a JSON object with this structure:
-{
-  "behavioral": [
-    {
-      "question": "string",
-      "answer": "string (STAR format with clear sections)",
-      "coachingTip": "string"
-    }
-  ],
-  "technical": [
-    {
-      "question": "string", 
-      "answer": "string (clear technical explanation)",
-      "coachingTip": "string"
-    }
-  ],
-  "weakAreas": ["string", "string", "string"]
-}`;
+Provide a sample answer that demonstrates how a candidate might respond effectively using that format.
+
+Maintain clear, easy-to-read formatting with line breaks, headings, and structure.
+
+Format:
+
+7 Tailored Interview Questions
+
+Question: [The specific interview question]
+
+Answer Format: [Explain STAR or another appropriate structure briefly]
+
+Sample Answer: [Well-structured example response using the format]
+
+Final Note: Short personalized tip or advice on how to approach interviews in this company's domain.
+
+Parameters:
+
+Always generate exactly 7 domain-relevant questions.
+
+Avoid generic or repetitive questions.
+
+Keep tone professional, clear, and encouraging.
+
+Ensure structure is visually readable (use line breaks, bolding, and spacing).
+
+If the job description is missing, infer common skills and expectations for the role and company's industry.`;
 
     const userPrompt = `Generate interview questions and coached answers for:
 
@@ -93,40 +100,30 @@ Return ONLY valid JSON (no markdown, no code blocks).`;
             type: 'function',
             function: {
               name: 'generate_interview_questions',
-              description: 'Generate interview questions with STAR method answers',
+              description: 'Generate 7 domain-specific interview questions with coached answers',
               parameters: {
                 type: 'object',
                 properties: {
-                  behavioral: {
+                  questions: {
                     type: 'array',
                     items: {
                       type: 'object',
                       properties: {
                         question: { type: 'string' },
-                        answer: { type: 'string' },
-                        coachingTip: { type: 'string' }
+                        answerFormat: { type: 'string' },
+                        sampleAnswer: { type: 'string' }
                       },
-                      required: ['question', 'answer', 'coachingTip']
-                    }
+                      required: ['question', 'answerFormat', 'sampleAnswer']
+                    },
+                    minItems: 7,
+                    maxItems: 7
                   },
-                  technical: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        question: { type: 'string' },
-                        answer: { type: 'string' },
-                        coachingTip: { type: 'string' }
-                      },
-                      required: ['question', 'answer', 'coachingTip']
-                    }
-                  },
-                  weakAreas: {
-                    type: 'array',
-                    items: { type: 'string' }
+                  finalNote: {
+                    type: 'string',
+                    description: 'Personalized tip on how to approach interviews in this company\'s domain'
                   }
                 },
-                required: ['behavioral', 'technical', 'weakAreas']
+                required: ['questions', 'finalNote']
               }
             }
           }

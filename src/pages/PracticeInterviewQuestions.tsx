@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -14,14 +14,13 @@ import { Sparkles, RefreshCw, CheckCircle2, Briefcase, Building2, FileText, Ligh
 
 interface Question {
   question: string;
-  answer: string;
-  coachingTip: string;
+  answerFormat: string;
+  sampleAnswer: string;
 }
 
 interface InterviewData {
-  behavioral: Question[];
-  technical: Question[];
-  weakAreas: string[];
+  questions: Question[];
+  finalNote: string;
 }
 
 const PracticeInterviewQuestions = () => {
@@ -52,7 +51,7 @@ const PracticeInterviewQuestions = () => {
         return;
       }
 
-      if (!data?.behavioral || !data?.technical) {
+      if (!data?.questions || !data?.finalNote) {
         toast.error('Invalid response from server');
         return;
       }
@@ -79,10 +78,6 @@ const PracticeInterviewQuestions = () => {
     });
   };
 
-  const regenerateAnswer = async (index: number, type: 'behavioral' | 'technical') => {
-    toast.info('Regenerating answer...');
-    await generateQuestions();
-  };
 
   const handleReset = () => {
     setQuestions(null);
@@ -92,7 +87,7 @@ const PracticeInterviewQuestions = () => {
     setPracticedQuestions(new Set());
   };
 
-  const totalQuestions = questions ? questions.behavioral.length + questions.technical.length : 0;
+  const totalQuestions = questions ? questions.questions.length : 0;
   const progressPercentage = totalQuestions > 0 ? (practicedQuestions.size / totalQuestions) * 100 : 0;
 
   return (
@@ -105,7 +100,7 @@ const PracticeInterviewQuestions = () => {
               Practice Interview Questions
             </h1>
             <p className="text-lg text-muted-foreground">
-              Generate and practice AI-predicted interview questions tailored to your target role. Get coached answers using the STAR method and identify weak areas to focus on.
+              Generate 7 AI-tailored interview questions specific to your target company's domain. Get coached answers with recommended formats and personalized preparation tips.
             </p>
           </div>
 
@@ -190,23 +185,14 @@ const PracticeInterviewQuestions = () => {
           {/* Results Section */}
           {questions && (
             <div className="space-y-6 animate-fade-in">
-              {/* Weak Areas Section */}
-              {questions.weakAreas && questions.weakAreas.length > 0 && (
+              {/* Final Note Section */}
+              {questions.finalNote && (
                 <Card className="p-6 bg-muted/50 border-2 border-primary/20 shadow-card">
                   <div className="flex items-start gap-3">
                     <Lightbulb className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
                     <div className="space-y-3 flex-1">
-                      <h3 className="font-semibold text-xl">Weak Areas to Prepare For</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Based on your target role and job description, focus on these key areas:
-                      </p>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {questions.weakAreas.map((area, index) => (
-                          <Badge key={index} variant="secondary" className="text-sm py-2 px-3">
-                            {area}
-                          </Badge>
-                        ))}
-                      </div>
+                      <h3 className="font-semibold text-xl">Interview Preparation Tips</h3>
+                      <p className="text-sm leading-relaxed">{questions.finalNote}</p>
                     </div>
                   </div>
                 </Card>
@@ -252,180 +238,90 @@ const PracticeInterviewQuestions = () => {
                 </Button>
               </div>
 
-              {/* Questions Tabs */}
+              {/* Questions Section */}
               <Card className="p-8 shadow-card">
-                <Tabs defaultValue="behavioral" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-2 h-12">
-                    <TabsTrigger value="behavioral" className="text-base">
-                      Behavioral ({questions.behavioral.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="technical" className="text-base">
-                      Technical ({questions.technical.length})
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="behavioral" className="space-y-4 mt-6">
-                    <Accordion type="single" collapsible className="space-y-4">
-                      {questions.behavioral.map((q, index) => {
-                        const questionId = index;
-                        const isPracticed = practicedQuestions.has(questionId);
-                        
-                        return (
-                          <AccordionItem
-                            key={index}
-                            value={`behavioral-${index}`}
-                            className={`border-2 rounded-lg px-6 py-3 transition-all ${
-                              isPracticed 
-                                ? 'opacity-60 border-primary/30 bg-muted/30' 
-                                : 'hover:border-primary/50 hover:shadow-md'
-                            }`}
-                          >
-                            <AccordionTrigger className="hover:no-underline py-3">
-                              <div className="flex items-start gap-3 text-left w-full">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-xl">Interview Questions ({questions.questions.length})</h3>
+                  <Accordion type="single" collapsible className="space-y-4">
+                    {questions.questions.map((q, index) => {
+                      const isPracticed = practicedQuestions.has(index);
+                      
+                      return (
+                        <AccordionItem
+                          key={index}
+                          value={`question-${index}`}
+                          className={`border-2 rounded-lg px-6 py-3 transition-all ${
+                            isPracticed 
+                              ? 'opacity-60 border-primary/30 bg-muted/30' 
+                              : 'hover:border-primary/50 hover:shadow-md'
+                          }`}
+                        >
+                          <AccordionTrigger className="hover:no-underline py-3">
+                            <div className="flex items-start gap-3 text-left w-full">
+                              {isPracticed && (
+                                <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                              )}
+                              <div className="space-y-2 flex-1">
+                                <p className={`font-semibold text-base ${isPracticed ? 'line-through' : ''}`}>
+                                  {q.question}
+                                </p>
                                 {isPracticed && (
-                                  <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                                  <Badge variant="secondary" className="text-xs">
+                                    ✓ Practiced
+                                  </Badge>
                                 )}
-                                <div className="space-y-2 flex-1">
-                                  <p className={`font-semibold text-base ${isPracticed ? 'line-through' : ''}`}>
-                                    {q.question}
-                                  </p>
-                                  {isPracticed && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      ✓ Practiced
-                                    </Badge>
-                                  )}
-                                </div>
                               </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-4">
-                              <div className="space-y-4">
-                                <div className="bg-muted/50 p-6 rounded-lg space-y-3 border border-border">
-                                  <h4 className="font-semibold text-sm text-primary uppercase tracking-wide">
-                                    Sample Answer (STAR Method)
-                                  </h4>
-                                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                                    {q.answer}
-                                  </p>
-                                </div>
-                                
-                                {q.coachingTip && (
-                                  <div className="bg-primary/5 p-4 rounded-lg border-l-4 border-primary">
-                                    <p className="text-xs font-medium flex items-start gap-2">
-                                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                                      <span><strong>AI Tip:</strong> {q.coachingTip}</span>
-                                    </p>
-                                  </div>
-                                )}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="pt-4 space-y-4">
+                            <div className="space-y-4">
+                              {/* Answer Format Section */}
+                              <div className="bg-primary/5 p-4 rounded-lg border-l-4 border-primary">
+                                <h4 className="font-semibold text-sm text-primary uppercase tracking-wide mb-2">
+                                  Recommended Answer Format
+                                </h4>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                                  {q.answerFormat}
+                                </p>
+                              </div>
 
-                                <div className="flex gap-2 pt-2 flex-wrap">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => regenerateAnswer(index, 'behavioral')}
-                                    className="gap-2"
-                                  >
-                                    <RefreshCw className="h-3 w-3" />
-                                    Regenerate Answer
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant={isPracticed ? "secondary" : "default"}
-                                    onClick={() => togglePracticed(questionId)}
-                                    className="gap-2"
-                                  >
-                                    <CheckCircle2 className="h-3 w-3" />
-                                    {isPracticed ? 'Unpractice' : 'Mark as Practiced'}
-                                  </Button>
-                                </div>
+                              {/* Sample Answer Section */}
+                              <div className="bg-muted/50 p-6 rounded-lg space-y-3 border border-border">
+                                <h4 className="font-semibold text-sm text-primary uppercase tracking-wide">
+                                  Sample Answer
+                                </h4>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                                  {q.sampleAnswer}
+                                </p>
                               </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        );
-                      })}
-                    </Accordion>
-                  </TabsContent>
 
-                  <TabsContent value="technical" className="space-y-4 mt-6">
-                    <Accordion type="single" collapsible className="space-y-4">
-                      {questions.technical.map((q, index) => {
-                        const questionId = questions.behavioral.length + index;
-                        const isPracticed = practicedQuestions.has(questionId);
-                        
-                        return (
-                          <AccordionItem
-                            key={index}
-                            value={`technical-${index}`}
-                            className={`border-2 rounded-lg px-6 py-3 transition-all ${
-                              isPracticed 
-                                ? 'opacity-60 border-primary/30 bg-muted/30' 
-                                : 'hover:border-primary/50 hover:shadow-md'
-                            }`}
-                          >
-                            <AccordionTrigger className="hover:no-underline py-3">
-                              <div className="flex items-start gap-3 text-left w-full">
-                                {isPracticed && (
-                                  <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                                )}
-                                <div className="space-y-2 flex-1">
-                                  <p className={`font-semibold text-base ${isPracticed ? 'line-through' : ''}`}>
-                                    {q.question}
-                                  </p>
-                                  {isPracticed && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      ✓ Practiced
-                                    </Badge>
-                                  )}
-                                </div>
+                              <div className="flex gap-2 pt-2 flex-wrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => generateQuestions()}
+                                  className="gap-2"
+                                >
+                                  <RefreshCw className="h-3 w-3" />
+                                  Regenerate All Questions
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant={isPracticed ? "secondary" : "default"}
+                                  onClick={() => togglePracticed(index)}
+                                  className="gap-2"
+                                >
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  {isPracticed ? 'Unpractice' : 'Mark as Practiced'}
+                                </Button>
                               </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-4">
-                              <div className="space-y-4">
-                                <div className="bg-muted/50 p-6 rounded-lg space-y-3 border border-border">
-                                  <h4 className="font-semibold text-sm text-primary uppercase tracking-wide">
-                                    Sample Answer
-                                  </h4>
-                                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                                    {q.answer}
-                                  </p>
-                                </div>
-                                
-                                {q.coachingTip && (
-                                  <div className="bg-primary/5 p-4 rounded-lg border-l-4 border-primary">
-                                    <p className="text-xs font-medium flex items-start gap-2">
-                                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                                      <span><strong>AI Tip:</strong> {q.coachingTip}</span>
-                                    </p>
-                                  </div>
-                                )}
-
-                                <div className="flex gap-2 pt-2 flex-wrap">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => regenerateAnswer(index, 'technical')}
-                                    className="gap-2"
-                                  >
-                                    <RefreshCw className="h-3 w-3" />
-                                    Regenerate Answer
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant={isPracticed ? "secondary" : "default"}
-                                    onClick={() => togglePracticed(questionId)}
-                                    className="gap-2"
-                                  >
-                                    <CheckCircle2 className="h-3 w-3" />
-                                    {isPracticed ? 'Unpractice' : 'Mark as Practiced'}
-                                  </Button>
-                                </div>
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        );
-                      })}
-                    </Accordion>
-                  </TabsContent>
-                </Tabs>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </div>
               </Card>
             </div>
           )}
