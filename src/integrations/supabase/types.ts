@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_activities: {
+        Row: {
+          activity_date: string
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          application_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_completed: boolean | null
+          scheduled_for: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          application_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          scheduled_for?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: Database["public"]["Enums"]["activity_type"]
+          application_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          scheduled_for?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_activities_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_applications: {
+        Row: {
+          applied_date: string | null
+          company_name: string
+          cover_letter_used: string | null
+          created_at: string
+          deadline: string | null
+          id: string
+          job_description: string | null
+          job_title: string
+          job_url: string | null
+          location: string | null
+          notes: string | null
+          priority: Database["public"]["Enums"]["application_priority"] | null
+          recruiter_email: string | null
+          recruiter_linkedin: string | null
+          recruiter_name: string | null
+          resume_version: string | null
+          salary_range: string | null
+          search_vector: unknown
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applied_date?: string | null
+          company_name: string
+          cover_letter_used?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          job_description?: string | null
+          job_title: string
+          job_url?: string | null
+          location?: string | null
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["application_priority"] | null
+          recruiter_email?: string | null
+          recruiter_linkedin?: string | null
+          recruiter_name?: string | null
+          resume_version?: string | null
+          salary_range?: string | null
+          search_vector?: unknown
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applied_date?: string | null
+          company_name?: string
+          cover_letter_used?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          job_description?: string | null
+          job_title?: string
+          job_url?: string | null
+          location?: string | null
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["application_priority"] | null
+          recruiter_email?: string | null
+          recruiter_linkedin?: string | null
+          recruiter_name?: string | null
+          resume_version?: string | null
+          salary_range?: string | null
+          search_vector?: unknown
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           career_goals: string | null
@@ -88,7 +207,26 @@ export type Database = {
       }
     }
     Enums: {
+      activity_type:
+        | "note"
+        | "status_change"
+        | "interview_scheduled"
+        | "follow_up_sent"
+        | "response_received"
+        | "document_submitted"
+        | "offer_received"
+        | "custom"
       app_role: "admin" | "user"
+      application_priority: "low" | "medium" | "high"
+      application_status:
+        | "wishlist"
+        | "applied"
+        | "screening"
+        | "interviewing"
+        | "offer"
+        | "accepted"
+        | "rejected"
+        | "withdrawn"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -216,7 +354,28 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_type: [
+        "note",
+        "status_change",
+        "interview_scheduled",
+        "follow_up_sent",
+        "response_received",
+        "document_submitted",
+        "offer_received",
+        "custom",
+      ],
       app_role: ["admin", "user"],
+      application_priority: ["low", "medium", "high"],
+      application_status: [
+        "wishlist",
+        "applied",
+        "screening",
+        "interviewing",
+        "offer",
+        "accepted",
+        "rejected",
+        "withdrawn",
+      ],
     },
   },
 } as const

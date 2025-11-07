@@ -62,18 +62,28 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/practice-interview-questions"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <PracticeInterviewQuestions />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
+              <Route
+                path="/practice-interview-questions"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PracticeInterviewQuestions />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/application-tracker"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ApplicationTracker />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
               element={
                 <ProtectedRoute>
                   <AppLayout>
