@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,14 +13,25 @@ serve(async (req) => {
   }
 
   try {
-    const { 
-      companyName, 
-      jobTitle, 
-      jobDescription, 
-      currentStatus, 
-      appliedDate,
-      lastActivity 
-    } = await req.json();
+    const inputSchema = z.object({
+      companyName: z.string().trim().min(1, 'Company name is required').max(200, 'Company name too long'),
+      jobTitle: z.string().trim().min(1, 'Job title is required').max(200, 'Job title too long'),
+      jobDescription: z.string().trim().max(50000, 'Job description too long (max 50,000 characters)').optional().nullable(),
+      currentStatus: z.enum(['wishlist', 'applied', 'screening', 'interviewing', 'offer', 'accepted', 'rejected', 'withdrawn']),
+      appliedDate: z.string().optional().nullable(),
+      lastActivity: z.string().trim().max(1000, 'Last activity too long').optional().nullable()
+    });
+
+    const parseResult = inputSchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      const errors = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { companyName, jobTitle, jobDescription, currentStatus, appliedDate, lastActivity } = parseResult.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {

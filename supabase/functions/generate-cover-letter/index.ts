@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,14 +13,25 @@ serve(async (req) => {
   }
 
   try {
-    const { targetRole, targetCompany, jobDescription, template } = await req.json();
+    const inputSchema = z.object({
+      targetRole: z.string().trim().min(1, 'Target role is required').max(200, 'Target role too long'),
+      targetCompany: z.string().trim().min(1, 'Target company is required').max(200, 'Target company too long'),
+      jobDescription: z.string().trim().min(1, 'Job description is required').max(50000, 'Job description too long (max 50,000 characters)'),
+      template: z.enum(['professional', 'passionate', 'data-driven', 'creative'], {
+        errorMap: () => ({ message: 'Invalid template type' })
+      })
+    });
 
-    if (!targetRole || !targetCompany || !jobDescription || !template) {
+    const parseResult = inputSchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      const errors = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return new Response(
-        JSON.stringify({ error: 'All fields are required' }),
+        JSON.stringify({ error: 'Invalid input', details: errors }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { targetRole, targetCompany, jobDescription, template } = parseResult.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {

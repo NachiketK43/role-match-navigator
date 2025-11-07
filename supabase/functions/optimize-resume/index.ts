@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,14 +12,21 @@ serve(async (req) => {
   }
 
   try {
-    const { resume, jobDescription } = await req.json();
+    const inputSchema = z.object({
+      resume: z.string().trim().min(1, 'Resume is required').max(50000, 'Resume too long (max 50,000 characters)'),
+      jobDescription: z.string().trim().min(1, 'Job description is required').max(50000, 'Job description too long (max 50,000 characters)')
+    });
 
-    if (!resume || !jobDescription) {
+    const parseResult = inputSchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      const errors = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return new Response(
-        JSON.stringify({ error: 'Resume and job description are required' }),
+        JSON.stringify({ error: 'Invalid input', details: errors }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { resume, jobDescription } = parseResult.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
