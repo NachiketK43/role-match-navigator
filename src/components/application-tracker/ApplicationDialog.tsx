@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateApplication, useUpdateApplication } from '@/hooks/useApplications';
 import type { Database } from '@/integrations/supabase/types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 type Application = Database['public']['Tables']['job_applications']['Row'];
 type ApplicationStatus = Database['public']['Enums']['application_status'];
 type ApplicationPriority = Database['public']['Enums']['application_priority'];
+
+const applicationSchema = z.object({
+  company_name: z.string().trim().min(1, 'Company name is required').max(200, 'Company name must be less than 200 characters'),
+  job_title: z.string().trim().min(1, 'Job title is required').max(200, 'Job title must be less than 200 characters'),
+  job_url: z.string().trim().url('Invalid URL format').optional().or(z.literal('')),
+  location: z.string().trim().max(200, 'Location must be less than 200 characters').optional(),
+  salary_range: z.string().trim().max(100, 'Salary range must be less than 100 characters').optional(),
+  job_description: z.string().trim().max(50000, 'Job description too long (max 50,000 characters)').optional(),
+  status: z.enum(['wishlist', 'applied', 'screening', 'interviewing', 'offer', 'accepted', 'rejected', 'withdrawn']),
+  priority: z.enum(['low', 'medium', 'high']),
+  applied_date: z.string().optional(),
+  deadline: z.string().optional(),
+  recruiter_name: z.string().trim().max(200, 'Recruiter name must be less than 200 characters').optional(),
+  recruiter_email: z.string().trim().email('Invalid email address').optional().or(z.literal('')),
+  recruiter_linkedin: z.string().trim().url('Invalid LinkedIn URL').optional().or(z.literal('')),
+  notes: z.string().trim().max(10000, 'Notes too long (max 10,000 characters)').optional(),
+  resume_version: z.string().trim().max(200, 'Resume version must be less than 200 characters').optional(),
+  cover_letter_used: z.string().trim().max(10000, 'Cover letter too long (max 10,000 characters)').optional()
+});
+
+type ApplicationFormData = z.infer<typeof applicationSchema>;
 
 interface ApplicationDialogProps {
   open: boolean;
@@ -23,28 +48,31 @@ export function ApplicationDialog({ open, onOpenChange, application }: Applicati
   const createMutation = useCreateApplication();
   const updateMutation = useUpdateApplication();
 
-  const [formData, setFormData] = useState({
-    company_name: '',
-    job_title: '',
-    job_url: '',
-    location: '',
-    salary_range: '',
-    job_description: '',
-    status: 'wishlist' as ApplicationStatus,
-    priority: 'medium' as ApplicationPriority,
-    applied_date: '',
-    deadline: '',
-    recruiter_name: '',
-    recruiter_email: '',
-    recruiter_linkedin: '',
-    notes: '',
-    resume_version: '',
-    cover_letter_used: ''
+  const form = useForm<ApplicationFormData>({
+    resolver: zodResolver(applicationSchema),
+    defaultValues: {
+      company_name: '',
+      job_title: '',
+      job_url: '',
+      location: '',
+      salary_range: '',
+      job_description: '',
+      status: 'wishlist',
+      priority: 'medium',
+      applied_date: '',
+      deadline: '',
+      recruiter_name: '',
+      recruiter_email: '',
+      recruiter_linkedin: '',
+      notes: '',
+      resume_version: '',
+      cover_letter_used: ''
+    }
   });
 
   useEffect(() => {
     if (application) {
-      setFormData({
+      form.reset({
         company_name: application.company_name,
         job_title: application.job_title,
         job_url: application.job_url || '',
@@ -63,7 +91,7 @@ export function ApplicationDialog({ open, onOpenChange, application }: Applicati
         cover_letter_used: application.cover_letter_used || ''
       });
     } else {
-      setFormData({
+      form.reset({
         company_name: '',
         job_title: '',
         job_url: '',
@@ -82,25 +110,26 @@ export function ApplicationDialog({ open, onOpenChange, application }: Applicati
         cover_letter_used: ''
       });
     }
-  }, [application, open]);
+  }, [application, open, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const onSubmit = async (data: ApplicationFormData) => {
     const dataToSubmit = {
-      ...formData,
-      job_url: formData.job_url || null,
-      location: formData.location || null,
-      salary_range: formData.salary_range || null,
-      job_description: formData.job_description || null,
-      applied_date: formData.applied_date || null,
-      deadline: formData.deadline || null,
-      recruiter_name: formData.recruiter_name || null,
-      recruiter_email: formData.recruiter_email || null,
-      recruiter_linkedin: formData.recruiter_linkedin || null,
-      notes: formData.notes || null,
-      resume_version: formData.resume_version || null,
-      cover_letter_used: formData.cover_letter_used || null
+      company_name: data.company_name,
+      job_title: data.job_title,
+      status: data.status,
+      priority: data.priority,
+      job_url: data.job_url || null,
+      location: data.location || null,
+      salary_range: data.salary_range || null,
+      job_description: data.job_description || null,
+      applied_date: data.applied_date || null,
+      deadline: data.deadline || null,
+      recruiter_name: data.recruiter_name || null,
+      recruiter_email: data.recruiter_email || null,
+      recruiter_linkedin: data.recruiter_linkedin || null,
+      notes: data.notes || null,
+      resume_version: data.resume_version || null,
+      cover_letter_used: data.cover_letter_used || null
     };
 
     if (application) {
@@ -119,187 +148,251 @@ export function ApplicationDialog({ open, onOpenChange, application }: Applicati
           <DialogTitle>{application ? 'Edit Application' : 'Add New Application'}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="company_name">Company Name *</Label>
-              <Input
-                id="company_name"
-                value={formData.company_name}
-                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                required
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="company_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Name *</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="job_title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Title *</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="job_title">Job Title *</Label>
-              <Input
-                id="job_title"
-                value={formData.job_title}
-                onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-                required
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="job_url">Job URL</Label>
-              <Input
-                id="job_url"
-                type="url"
-                placeholder="https://..."
-                value={formData.job_url}
-                onChange={(e) => setFormData({ ...formData, job_url: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="job_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job URL</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="https://..." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., New York, NY" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                placeholder="e.g., New York, NY"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Status *</Label>
-              <Select value={formData.status} onValueChange={(value: ApplicationStatus) => setFormData({ ...formData, status: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="wishlist">Wishlist</SelectItem>
-                  <SelectItem value="applied">Applied</SelectItem>
-                  <SelectItem value="screening">Screening</SelectItem>
-                  <SelectItem value="interviewing">Interviewing</SelectItem>
-                  <SelectItem value="offer">Offer</SelectItem>
-                  <SelectItem value="accepted">Accepted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="withdrawn">Withdrawn</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="salary_range">Salary Range</Label>
-              <Input
-                id="salary_range"
-                placeholder="e.g., $80k - $100k"
-                value={formData.salary_range}
-                onChange={(e) => setFormData({ ...formData, salary_range: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="wishlist">Wishlist</SelectItem>
+                        <SelectItem value="applied">Applied</SelectItem>
+                        <SelectItem value="screening">Screening</SelectItem>
+                        <SelectItem value="interviewing">Interviewing</SelectItem>
+                        <SelectItem value="offer">Offer</SelectItem>
+                        <SelectItem value="accepted">Accepted</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                        <SelectItem value="withdrawn">Withdrawn</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="salary_range"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salary Range</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., $80k - $100k" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label>Priority</Label>
-            <RadioGroup value={formData.priority} onValueChange={(value: ApplicationPriority) => setFormData({ ...formData, priority: value })}>
-              <div className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="low" id="low" />
-                  <Label htmlFor="low" className="cursor-pointer">Low</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="medium" id="medium" />
-                  <Label htmlFor="medium" className="cursor-pointer">Medium</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="high" id="high" />
-                  <Label htmlFor="high" className="cursor-pointer">High</Label>
-                </div>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="applied_date">Applied Date</Label>
-              <Input
-                id="applied_date"
-                type="date"
-                value={formData.applied_date}
-                onChange={(e) => setFormData({ ...formData, applied_date: e.target.value })}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="deadline">Deadline</Label>
-              <Input
-                id="deadline"
-                type="date"
-                value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="job_description">Job Description</Label>
-            <Textarea
-              id="job_description"
-              placeholder="Paste the job description here..."
-              className="min-h-[100px]"
-              value={formData.job_description}
-              onChange={(e) => setFormData({ ...formData, job_description: e.target.value })}
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Priority</FormLabel>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="low" id="low" />
+                        <Label htmlFor="low" className="cursor-pointer">Low</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="medium" id="medium" />
+                        <Label htmlFor="medium" className="cursor-pointer">Medium</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="high" id="high" />
+                        <Label htmlFor="high" className="cursor-pointer">High</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="recruiter_name">Recruiter Name</Label>
-              <Input
-                id="recruiter_name"
-                value={formData.recruiter_name}
-                onChange={(e) => setFormData({ ...formData, recruiter_name: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="applied_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Applied Date</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Deadline</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="recruiter_email">Recruiter Email</Label>
-              <Input
-                id="recruiter_email"
-                type="email"
-                value={formData.recruiter_email}
-                onChange={(e) => setFormData({ ...formData, recruiter_email: e.target.value })}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="recruiter_linkedin">Recruiter LinkedIn</Label>
-              <Input
-                id="recruiter_linkedin"
-                placeholder="LinkedIn URL"
-                value={formData.recruiter_linkedin}
-                onChange={(e) => setFormData({ ...formData, recruiter_linkedin: e.target.value })}
-              />
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              placeholder="Any additional notes..."
-              className="min-h-[100px]"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            <FormField
+              control={form.control}
+              name="job_description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} placeholder="Paste the job description here..." className="min-h-[100px]" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-              {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save Application'}
-            </Button>
-          </div>
-        </form>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="recruiter_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recruiter Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="recruiter_email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recruiter Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="recruiter_linkedin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recruiter LinkedIn</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="LinkedIn URL" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} placeholder="Any additional notes..." className="min-h-[100px]" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save Application'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

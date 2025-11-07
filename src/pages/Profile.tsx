@@ -4,53 +4,48 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Loader2, User } from "lucide-react";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 
-interface ProfileData {
-  full_name: string;
-  email: string;
-  role: string;
-  company: string;
-  years_of_experience: string;
-  career_goals: string;
-  linkedin_url: string;
-  portfolio_url: string;
-  profile_picture_url: string;
-}
+const profileSchema = z.object({
+  full_name: z.string().trim().min(2, 'Name must be at least 2 characters').max(200, 'Name too long'),
+  email: z.string().email('Invalid email address'),
+  role: z.string().trim().max(200, 'Role must be less than 200 characters').optional().or(z.literal('')),
+  company: z.string().trim().max(200, 'Company name must be less than 200 characters').optional().or(z.literal('')),
+  years_of_experience: z.string().optional(),
+  career_goals: z.string().trim().max(5000, 'Career goals too long (max 5,000 characters)').optional().or(z.literal('')),
+  linkedin_url: z.string().trim().url('Invalid LinkedIn URL').optional().or(z.literal('')),
+  portfolio_url: z.string().trim().url('Invalid portfolio URL').optional().or(z.literal('')),
+  profile_picture_url: z.string().trim().url('Invalid image URL').optional().or(z.literal(''))
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function Profile() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-  
-  const [originalData, setOriginalData] = useState<ProfileData>({
-    full_name: "",
-    email: "",
-    role: "",
-    company: "",
-    years_of_experience: "",
-    career_goals: "",
-    linkedin_url: "",
-    portfolio_url: "",
-    profile_picture_url: "",
-  });
 
-  const [formData, setFormData] = useState<ProfileData>({
-    full_name: "",
-    email: "",
-    role: "",
-    company: "",
-    years_of_experience: "",
-    career_goals: "",
-    linkedin_url: "",
-    portfolio_url: "",
-    profile_picture_url: "",
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      full_name: "",
+      email: "",
+      role: "",
+      company: "",
+      years_of_experience: "",
+      career_goals: "",
+      linkedin_url: "",
+      portfolio_url: "",
+      profile_picture_url: "",
+    }
   });
 
   useEffect(() => {
@@ -58,12 +53,6 @@ export default function Profile() {
       loadProfile();
     }
   }, [user]);
-
-  useEffect(() => {
-    // Check if any field has changed
-    const changed = JSON.stringify(formData) !== JSON.stringify(originalData);
-    setHasChanges(changed);
-  }, [formData, originalData]);
 
   const loadProfile = async () => {
     try {
@@ -76,7 +65,7 @@ export default function Profile() {
 
       if (error) throw error;
 
-      const profileData: ProfileData = {
+      form.reset({
         full_name: data?.full_name || "",
         email: data?.email || "",
         role: data?.role || "",
@@ -86,10 +75,7 @@ export default function Profile() {
         linkedin_url: data?.linkedin_url || "",
         portfolio_url: data?.portfolio_url || "",
         profile_picture_url: data?.profile_picture_url || "",
-      };
-
-      setFormData(profileData);
-      setOriginalData(profileData);
+      });
     } catch (error) {
       console.error("Error loading profile:", error);
       toast.error("Failed to load profile");
@@ -98,26 +84,26 @@ export default function Profile() {
     }
   };
 
-  const handleSave = async () => {
+  const onSubmit = async (data: ProfileFormData) => {
     try {
       setSaving(true);
       const { error } = await supabase
         .from("profiles")
         .update({
-          full_name: formData.full_name,
-          role: formData.role,
-          company: formData.company,
-          years_of_experience: formData.years_of_experience,
-          career_goals: formData.career_goals,
-          linkedin_url: formData.linkedin_url,
-          portfolio_url: formData.portfolio_url,
-          profile_picture_url: formData.profile_picture_url,
+          full_name: data.full_name,
+          role: data.role || null,
+          company: data.company || null,
+          years_of_experience: data.years_of_experience || null,
+          career_goals: data.career_goals || null,
+          linkedin_url: data.linkedin_url || null,
+          portfolio_url: data.portfolio_url || null,
+          profile_picture_url: data.profile_picture_url || null,
         })
         .eq("id", user?.id);
 
       if (error) throw error;
 
-      setOriginalData(formData);
+      form.reset(data);
       toast.success("Profile updated successfully");
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -160,143 +146,184 @@ export default function Profile() {
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Profile Picture */}
-            <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={formData.profile_picture_url} />
-                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                  {formData.full_name ? getInitials(formData.full_name) : <User />}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <Label htmlFor="profile_picture_url">Profile Picture URL</Label>
-                <Input
-                  id="profile_picture_url"
-                  placeholder="https://example.com/avatar.jpg"
-                  value={formData.profile_picture_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, profile_picture_url: e.target.value })
-                  }
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Profile Picture */}
+                <div className="flex items-center gap-6">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={form.watch('profile_picture_url')} />
+                    <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                      {form.watch('full_name') ? getInitials(form.watch('full_name')) : <User />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <FormField
+                    control={form.control}
+                    name="profile_picture_url"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel>Profile Picture URL</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="https://example.com/avatar.jpg" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Full Name */}
+                <FormField
+                  control={form.control}
+                  name="full_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="John Doe" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </div>
 
-            {/* Full Name */}
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Full Name</Label>
-              <Input
-                id="full_name"
-                placeholder="John Doe"
-                value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-              />
-            </div>
-
-            {/* Email (Read-only) */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" value={formData.email} disabled className="bg-muted" />
-              <p className="text-xs text-muted-foreground">
-                Email cannot be changed from this page
-              </p>
-            </div>
-
-            {/* Role and Years of Experience - Same Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  placeholder="e.g., Software Engineer"
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                {/* Email (Read-only) */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled className="bg-muted" />
+                      </FormControl>
+                      <FormDescription>
+                        Email cannot be changed from this page
+                      </FormDescription>
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="years_of_experience">Years of Experience</Label>
-                <Select
-                  value={formData.years_of_experience}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, years_of_experience: value })
-                  }
-                >
-                  <SelectTrigger id="years_of_experience">
-                    <SelectValue placeholder="Select experience level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0-3 years">0-3 years</SelectItem>
-                    <SelectItem value="3-6 years">3-6 years</SelectItem>
-                    <SelectItem value="6-10 years">6-10 years</SelectItem>
-                    <SelectItem value="10+ years">10+ years</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                {/* Role and Years of Experience - Same Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g., Software Engineer" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            {/* Company */}
-            <div className="space-y-2">
-              <Label htmlFor="company">Company</Label>
-              <Input
-                id="company"
-                placeholder="e.g., Microsoft"
-                value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              />
-            </div>
+                  <FormField
+                    control={form.control}
+                    name="years_of_experience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Years of Experience</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select experience level" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="0-3 years">0-3 years</SelectItem>
+                            <SelectItem value="3-6 years">3-6 years</SelectItem>
+                            <SelectItem value="6-10 years">6-10 years</SelectItem>
+                            <SelectItem value="10+ years">10+ years</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            {/* Career Goals */}
-            <div className="space-y-2">
-              <Label htmlFor="career_goals">Career Goals</Label>
-              <Textarea
-                id="career_goals"
-                placeholder="Describe your career aspirations and goals..."
-                value={formData.career_goals}
-                onChange={(e) => setFormData({ ...formData, career_goals: e.target.value })}
-                rows={4}
-              />
-            </div>
+                {/* Company */}
+                <FormField
+                  control={form.control}
+                  name="company"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., Microsoft" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* LinkedIn URL */}
-            <div className="space-y-2">
-              <Label htmlFor="linkedin_url">LinkedIn URL</Label>
-              <Input
-                id="linkedin_url"
-                placeholder="https://linkedin.com/in/yourprofile"
-                value={formData.linkedin_url}
-                onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-              />
-            </div>
+                {/* Career Goals */}
+                <FormField
+                  control={form.control}
+                  name="career_goals"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Career Goals</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Describe your career aspirations and goals..." rows={4} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Portfolio URL */}
-            <div className="space-y-2">
-              <Label htmlFor="portfolio_url">Portfolio URL</Label>
-              <Input
-                id="portfolio_url"
-                placeholder="https://yourportfolio.com"
-                value={formData.portfolio_url}
-                onChange={(e) => setFormData({ ...formData, portfolio_url: e.target.value })}
-              />
-            </div>
+                {/* LinkedIn URL */}
+                <FormField
+                  control={form.control}
+                  name="linkedin_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LinkedIn URL</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="https://linkedin.com/in/yourprofile" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Save Button */}
-            <div className="pt-4">
-              <Button
-                onClick={handleSave}
-                disabled={!hasChanges || saving}
-                className="w-full md:w-auto"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving Changes...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </div>
+                {/* Portfolio URL */}
+                <FormField
+                  control={form.control}
+                  name="portfolio_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Portfolio URL</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="https://yourportfolio.com" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Save Button */}
+                <div className="pt-4">
+                  <Button
+                    type="submit"
+                    disabled={!form.formState.isDirty || saving}
+                    className="w-full md:w-auto"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving Changes...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </div>
