@@ -17,6 +17,7 @@ import PracticeInterviewQuestions from "./pages/PracticeInterviewQuestions";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
+import ApplicationTracker from "./pages/ApplicationTracker";
 
 const queryClient = new QueryClient();
 
