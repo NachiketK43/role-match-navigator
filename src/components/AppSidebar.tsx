@@ -40,6 +40,7 @@ const menuItems = [
   { title: "Resume Optimizer", url: "/resume-optimizer", icon: Sparkles },
   { title: "Cover Letter Generator", url: "/cover-letter-generator", icon: Mail },
   { title: "Practice Interview Questions", url: "/practice-interview-questions", icon: MessageSquare },
+  { title: "Application Tracker", url: "/application-tracker", icon: Briefcase },
 ]
 
 export function AppSidebar() {
