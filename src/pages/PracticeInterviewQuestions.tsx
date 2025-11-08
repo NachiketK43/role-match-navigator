@@ -11,6 +11,8 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Sparkles, RefreshCw, CheckCircle2, Briefcase, Building2, FileText, Lightbulb } from 'lucide-react';
+import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
+import { RateLimitBanner } from '@/components/RateLimitBanner';
 
 interface Question {
   question: string;
@@ -30,6 +32,7 @@ const PracticeInterviewQuestions = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [questions, setQuestions] = useState<InterviewData | null>(null);
   const [practicedQuestions, setPracticedQuestions] = useState<Set<number>>(new Set());
+  const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
 
   const generateQuestions = async () => {
     if (!targetRole.trim() || !targetCompany.trim()) {
@@ -47,7 +50,10 @@ const PracticeInterviewQuestions = () => {
 
       if (error) {
         console.error('Interview questions generation error:', error);
-        toast.error('We couldn\'t load interview questions right now. Please try again.');
+        
+        if (!handleError(error)) {
+          toast.error('We couldn\'t load interview questions right now. Please try again.');
+        }
         return;
       }
 
@@ -103,6 +109,15 @@ const PracticeInterviewQuestions = () => {
               Generate 7 AI-tailored interview questions specific to your target company's domain. Get coached answers with recommended formats and personalized preparation tips.
             </p>
           </div>
+
+          {/* Rate Limit Banner */}
+          {isRateLimited && (
+            <RateLimitBanner
+              remainingTime={remainingTime}
+              message={rateLimitInfo?.message}
+              getRemainingTimeFormatted={getRemainingTimeFormatted}
+            />
+          )}
 
           {/* Input Section */}
           {!questions && (
@@ -164,7 +179,7 @@ const PracticeInterviewQuestions = () => {
                   size="lg"
                   className="px-8 py-6 text-lg font-semibold shadow-elevated"
                   onClick={generateQuestions}
-                  disabled={isGenerating}
+                  disabled={isGenerating || isRateLimited}
                 >
                   {isGenerating ? (
                     <>

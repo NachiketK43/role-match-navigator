@@ -8,6 +8,8 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
+import { RateLimitBanner } from '@/components/RateLimitBanner';
 
 interface KeywordInsight {
   keyword: string;
@@ -33,6 +35,7 @@ const ResumeOptimizer = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
 
   const handleAnalyze = async () => {
     if (!resume.trim() || !jobDescription.trim()) {
@@ -49,7 +52,10 @@ const ResumeOptimizer = () => {
 
       if (error) {
         console.error("Optimization error:", error);
-        toast.error("Analysis failed. Please try again.");
+        
+        if (!handleError(error)) {
+          toast.error("Analysis failed. Please try again.");
+        }
         setIsAnalyzing(false);
         return;
       }
@@ -90,6 +96,15 @@ const ResumeOptimizer = () => {
             </p>
           </div>
 
+          {/* Rate Limit Banner */}
+          {isRateLimited && (
+            <RateLimitBanner
+              remainingTime={remainingTime}
+              message={rateLimitInfo?.message}
+              getRemainingTimeFormatted={getRemainingTimeFormatted}
+            />
+          )}
+
           {/* Input Section */}
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Resume Input */}
@@ -129,7 +144,7 @@ const ResumeOptimizer = () => {
               size="lg"
               className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary-glow shadow-elevated transition-all"
               onClick={handleAnalyze}
-              disabled={isAnalyzing}
+              disabled={isAnalyzing || isRateLimited}
             >
               {isAnalyzing ? (
                 <>

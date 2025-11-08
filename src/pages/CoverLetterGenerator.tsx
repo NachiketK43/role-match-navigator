@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileText, Copy, Sparkles, Briefcase, Building2 } from 'lucide-react';
+import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
+import { RateLimitBanner } from '@/components/RateLimitBanner';
 
 type Template = 'professional' | 'passionate' | 'data-driven' | 'creative';
 
@@ -23,6 +25,7 @@ const CoverLetterGenerator = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template>('professional');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<string | null>(null);
+  const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
 
   const templates: TemplateOption[] = [
     { id: 'professional', label: 'Professional', description: 'Formal and traditional business tone' },
@@ -51,7 +54,10 @@ const CoverLetterGenerator = () => {
 
       if (error) {
         console.error('Cover letter generation error:', error);
-        toast.error('Failed to generate cover letter. Please try again.');
+        
+        if (!handleError(error)) {
+          toast.error('Failed to generate cover letter. Please try again.');
+        }
         return;
       }
 
@@ -96,6 +102,15 @@ const CoverLetterGenerator = () => {
               Create a personalized cover letter tailored to your target role and company.
             </p>
           </div>
+
+          {/* Rate Limit Banner */}
+          {isRateLimited && (
+            <RateLimitBanner
+              remainingTime={remainingTime}
+              message={rateLimitInfo?.message}
+              getRemainingTimeFormatted={getRemainingTimeFormatted}
+            />
+          )}
 
           {/* Input Section */}
           {!generatedLetter && (
@@ -175,7 +190,7 @@ const CoverLetterGenerator = () => {
                   size="lg"
                   className="px-8 py-6 text-lg font-semibold shadow-elevated"
                   onClick={generateCoverLetter}
-                  disabled={isGenerating}
+                  disabled={isGenerating || isRateLimited}
                 >
                   {isGenerating ? (
                     <>

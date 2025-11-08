@@ -101,8 +101,14 @@ Return ONLY the cover letter text (no JSON, no markdown formatting, just the let
       console.error('Lovable AI error:', aiResponse.status, errorText);
       
       if (aiResponse.status === 429) {
+        const retryAfter = aiResponse.headers.get('Retry-After') || aiResponse.headers.get('X-RateLimit-Reset');
+        const retryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : null;
+        
         return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
+          JSON.stringify({ 
+            error: 'Rate limit exceeded. Please try again in a moment.',
+            retryAfter: retryAfterSeconds 
+          }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }

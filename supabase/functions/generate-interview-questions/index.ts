@@ -147,8 +147,14 @@ Return ONLY valid JSON (no markdown, no code blocks).`;
       console.error('Lovable AI error:', response.status, errorText);
       
       if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || response.headers.get('X-RateLimit-Reset');
+        const retryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : null;
+        
         return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+          JSON.stringify({ 
+            error: 'Rate limit exceeded. Please try again later.',
+            retryAfter: retryAfterSeconds 
+          }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }

@@ -9,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User, FileText, Sparkles, CheckCircle2, AlertCircle, BookOpen } from 'lucide-react';
+import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
+import { RateLimitBanner } from '@/components/RateLimitBanner';
 
 interface Profile {
   email: string;
@@ -42,6 +44,7 @@ const Dashboard = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
 
   useEffect(() => {
     if (user) {
@@ -82,7 +85,10 @@ const Dashboard = () => {
 
       if (error) {
         console.error("Analysis error:", error);
-        toast.error("Analysis failed. Please try again.");
+        
+        if (!handleError(error)) {
+          toast.error("Analysis failed. Please try again.");
+        }
         setIsAnalyzing(false);
         return;
       }
@@ -125,6 +131,15 @@ const Dashboard = () => {
             </p>
           </div>
 
+          {/* Rate Limit Banner */}
+          {isRateLimited && (
+            <RateLimitBanner
+              remainingTime={remainingTime}
+              message={rateLimitInfo?.message}
+              getRemainingTimeFormatted={getRemainingTimeFormatted}
+            />
+          )}
+
           {/* Two Column Input */}
           <div className="grid md:grid-cols-2 gap-6">
             {/* Resume Input */}
@@ -162,7 +177,7 @@ const Dashboard = () => {
               size="lg"
               className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary-glow shadow-elevated hover:shadow-accent transition-all"
               onClick={handleAnalyze}
-              disabled={isAnalyzing}
+              disabled={isAnalyzing || isRateLimited}
             >
               {isAnalyzing ? (
                 <>
