@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import ApplicationTracker from "./pages/ApplicationTracker";
+import NetworkingHub from "./pages/NetworkingHub";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,16 @@ const App = () => (
                   <ProtectedRoute>
                     <AppLayout>
                       <ApplicationTracker />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/networking-hub"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <NetworkingHub />
                     </AppLayout>
                   </ProtectedRoute>
                 }

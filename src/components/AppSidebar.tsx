@@ -15,6 +15,7 @@ import {
   LogOut,
   Mail,
   MessageSquare,
+  Users,
 } from "lucide-react"
 
 import {
@@ -41,6 +42,7 @@ const menuItems = [
   { title: "Cover Letter Generator", url: "/cover-letter-generator", icon: Mail },
   { title: "Practice Interview Questions", url: "/practice-interview-questions", icon: MessageSquare },
   { title: "Application Tracker", url: "/application-tracker", icon: Briefcase },
+  { title: "Networking Hub", url: "/networking-hub", icon: Users },
 ]
 
 export function AppSidebar() {

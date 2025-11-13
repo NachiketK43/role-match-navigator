@@ -61,6 +61,101 @@ export type Database = {
           },
         ]
       }
+      contact_applications_link: {
+        Row: {
+          application_id: string
+          contact_id: string
+          created_at: string | null
+          id: string
+          link_type: string | null
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          link_type?: string | null
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          link_type?: string | null
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_applications_link_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_applications_link_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "professional_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_interactions: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          followup_date: string | null
+          id: string
+          interaction_date: string | null
+          interaction_type: string
+          is_completed: boolean | null
+          notes: string | null
+          requires_followup: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          followup_date?: string | null
+          id?: string
+          interaction_date?: string | null
+          interaction_type: string
+          is_completed?: boolean | null
+          notes?: string | null
+          requires_followup?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          followup_date?: string | null
+          id?: string
+          interaction_date?: string | null
+          interaction_type?: string
+          is_completed?: boolean | null
+          notes?: string | null
+          requires_followup?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "professional_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
           applied_date: string | null
@@ -129,6 +224,72 @@ export type Database = {
           search_vector?: unknown
           status?: Database["public"]["Enums"]["application_status"]
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      professional_contacts: {
+        Row: {
+          company: string | null
+          contact_type: string
+          created_at: string | null
+          email: string | null
+          full_name: string
+          how_we_met: string | null
+          id: string
+          is_active: boolean | null
+          job_title: string | null
+          last_contacted_date: string | null
+          linkedin_url: string | null
+          next_followup_date: string | null
+          notes: string | null
+          phone: string | null
+          relationship_strength: string | null
+          search_vector: unknown
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          contact_type?: string
+          created_at?: string | null
+          email?: string | null
+          full_name: string
+          how_we_met?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          last_contacted_date?: string | null
+          linkedin_url?: string | null
+          next_followup_date?: string | null
+          notes?: string | null
+          phone?: string | null
+          relationship_strength?: string | null
+          search_vector?: unknown
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          contact_type?: string
+          created_at?: string | null
+          email?: string | null
+          full_name?: string
+          how_we_met?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          last_contacted_date?: string | null
+          linkedin_url?: string | null
+          next_followup_date?: string | null
+          notes?: string | null
+          phone?: string | null
+          relationship_strength?: string | null
+          search_vector?: unknown
+          tags?: string[] | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
