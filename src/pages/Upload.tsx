@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, FileText, MessageSquare, Target, BarChart3, Upload as UploadIcon, CheckCircle2 } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import dashboardPreview from "@/assets/dashboard-preview.png";
 
 const Upload = () => {
@@ -181,6 +182,9 @@ const Upload = () => {
           </Button>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
