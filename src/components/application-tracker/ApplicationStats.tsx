@@ -1,5 +1,5 @@
-import { Card } from '@/components/ui/card';
-import { Target, TrendingUp, Calendar, Clock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Briefcase, Send, UserCheck, Timer } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 
 type Application = Database['public']['Tables']['job_applications']['Row'];
@@ -31,28 +31,32 @@ export function ApplicationStats({ applications }: ApplicationStatsProps) {
 
   const stats = [
     {
-      label: 'Total Applications',
-      value: totalCount,
-      icon: Target,
-      color: 'text-primary'
+      title: 'Total Applications',
+      period: 'All submissions',
+      value: totalCount.toString(),
+      icon: Briefcase,
+      color: 'hsl(var(--primary))',
     },
     {
-      label: 'Active Applications',
-      value: activeCount,
-      icon: TrendingUp,
-      color: 'text-blue-600'
+      title: 'Active Applications',
+      period: 'In progress',
+      value: activeCount.toString(),
+      icon: Send,
+      color: 'hsl(217 91% 60%)',
     },
     {
-      label: 'Interview Rate',
+      title: 'Interview Rate',
+      period: 'Success metric',
       value: `${interviewRate}%`,
-      icon: Calendar,
-      color: 'text-green-600'
+      icon: UserCheck,
+      color: 'hsl(142 76% 36%)',
     },
     {
-      label: 'Avg Response Time',
+      title: 'Avg Response Time',
+      period: 'Days to hear back',
       value: `${Math.round(avgResponseTime)} days`,
-      icon: Clock,
-      color: 'text-accent'
+      icon: Timer,
+      color: 'hsl(262 83% 58%)',
     }
   ];
 
@@ -61,14 +65,22 @@ export function ApplicationStats({ applications }: ApplicationStatsProps) {
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (
-          <Card key={stat.label} className="p-6 shadow-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="text-3xl font-bold mt-2">{stat.value}</p>
+          <Card key={stat.title}>
+            <CardContent className="space-y-4">
+              {/* Header with icon and title */}
+              <div className="flex items-center gap-2">
+                <Icon className="size-5" style={{ color: stat.color }} />
+                <span className="text-base font-semibold">{stat.title}</span>
               </div>
-              <Icon className={`h-12 w-12 ${stat.color} opacity-20`} />
-            </div>
+
+              <div className="flex flex-col gap-1">
+                {/* Period */}
+                <div className="text-sm text-muted-foreground whitespace-nowrap">{stat.period}</div>
+
+                {/* Value */}
+                <div className="text-3xl font-bold text-foreground tracking-tight">{stat.value}</div>
+              </div>
+            </CardContent>
           </Card>
         );
       })}
