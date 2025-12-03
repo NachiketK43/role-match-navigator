@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserCheck, Calendar, TrendingUp } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Users, Heart, Clock, Activity } from 'lucide-react';
 import { Contact } from '@/hooks/useContacts';
 
 interface NetworkingStatsProps {
@@ -25,51 +25,58 @@ export function NetworkingStats({ contacts }: NetworkingStatsProps) {
   const stats = [
     {
       title: 'Total Contacts',
-      value: totalContacts,
+      period: 'All time',
+      value: totalContacts.toString(),
       icon: Users,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10'
+      color: 'hsl(var(--primary))',
     },
     {
       title: 'Strong Relationships',
-      value: strongRelationships,
-      icon: UserCheck,
-      color: 'text-success',
-      bgColor: 'bg-success/10'
+      period: 'Active connections',
+      value: strongRelationships.toString(),
+      icon: Heart,
+      color: 'hsl(142 76% 36%)',
     },
     {
       title: 'Pending Follow-ups',
-      value: pendingFollowups,
-      icon: Calendar,
-      color: 'text-warning',
-      bgColor: 'bg-warning/10'
+      period: 'Needs attention',
+      value: pendingFollowups.toString(),
+      icon: Clock,
+      color: 'hsl(38 92% 50%)',
     },
     {
       title: 'Active (30 Days)',
-      value: recentContacts,
-      icon: TrendingUp,
-      color: 'text-info',
-      bgColor: 'bg-info/10'
+      period: 'Recent activity',
+      value: recentContacts.toString(),
+      icon: Activity,
+      color: 'hsl(262 83% 58%)',
     },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {stats.map((stat) => (
-        <Card key={stat.title} className="shadow-card hover:shadow-elevated transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {stat.title}
-            </CardTitle>
-            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stat.value}</div>
-          </CardContent>
-        </Card>
-      ))}
+      {stats.map((stat) => {
+        const Icon = stat.icon;
+        return (
+          <Card key={stat.title}>
+            <CardContent className="space-y-4">
+              {/* Header with icon and title */}
+              <div className="flex items-center gap-2">
+                <Icon className="size-5" style={{ color: stat.color }} />
+                <span className="text-base font-semibold">{stat.title}</span>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                {/* Period */}
+                <div className="text-sm text-muted-foreground whitespace-nowrap">{stat.period}</div>
+
+                {/* Value */}
+                <div className="text-3xl font-bold text-foreground tracking-tight">{stat.value}</div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
