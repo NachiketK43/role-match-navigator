@@ -136,10 +136,10 @@ export function ModernSidebar({ className = "" }: SidebarProps) {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed top-0 left-0 h-full bg-card border-r border-border z-40 transition-all duration-300 ease-in-out flex flex-col",
+          "fixed top-0 left-0 h-screen bg-card border-r border-border z-40 transition-all duration-300 ease-in-out flex flex-col",
           isOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-20" : "w-72",
-          "md:translate-x-0 md:static md:z-auto",
+          "md:translate-x-0 md:sticky md:top-0 md:z-auto md:h-screen",
           className
         )}
       >
