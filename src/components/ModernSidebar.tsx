@@ -13,8 +13,6 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight,
-  Search,
-  User,
 } from 'lucide-react';
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -177,19 +175,6 @@ export function ModernSidebar({ className = "" }: SidebarProps) {
           </button>
         </div>
 
-        {/* Search Bar */}
-        {!isCollapsed && (
-          <div className="px-4 py-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full pl-9 pr-4 py-2 bg-muted border border-border rounded-md text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-              />
-            </div>
-          </div>
-        )}
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-2 overflow-y-auto">
