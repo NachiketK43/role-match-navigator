@@ -7,15 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download, Copy, Settings2 } from 'lucide-react';
+import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download, Copy } from 'lucide-react';
 import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
 import { RateLimitBanner } from '@/components/RateLimitBanner';
 import jsPDF from 'jspdf';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 interface KeywordInsight {
   keyword: string;
@@ -43,8 +38,6 @@ const ResumeOptimizer = () => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [optimizedResume, setOptimizedResume] = useState<string | null>(null);
-  const [systemPrompt, setSystemPrompt] = useState("");
-  const [showSystemPrompt, setShowSystemPrompt] = useState(false);
   const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
 
   const handleOptimizeWithOpenAI = async () => {
@@ -60,8 +53,7 @@ const ResumeOptimizer = () => {
       const { data, error } = await supabase.functions.invoke('optimize-resume-openai', {
         body: { 
           resume, 
-          jobDescription,
-          systemPrompt: systemPrompt.trim() || undefined
+          jobDescription
         }
       });
 
@@ -371,40 +363,6 @@ const ResumeOptimizer = () => {
                 </div>
               </Card>
 
-              {/* System Prompt (Collapsible) */}
-              <Collapsible open={showSystemPrompt} onOpenChange={setShowSystemPrompt}>
-                <Card className="border-2 border-border/50">
-                  <CollapsibleTrigger asChild>
-                    <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-                          <Settings2 className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-sm">Custom System Prompt</h3>
-                          <p className="text-xs text-muted-foreground">Optional: Customize how OpenAI processes your resume</p>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {showSystemPrompt ? 'Hide' : 'Show'}
-                      </Badge>
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="px-4 pb-4">
-                      <Textarea
-                        placeholder="Enter your custom system prompt here...&#10;&#10;Example: You are an expert resume writer specializing in tech roles. Focus on highlighting technical skills and quantifiable achievements."
-                        value={systemPrompt}
-                        onChange={(e) => setSystemPrompt(e.target.value)}
-                        className="min-h-[120px] resize-none border-border/50 focus:border-primary text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Leave empty to use the default optimization prompt
-                      </p>
-                    </div>
-                  </CollapsibleContent>
-                </Card>
-              </Collapsible>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
