@@ -16,6 +16,7 @@ interface Question {
   question: string;
   answerFormat: string;
   sampleAnswer: string;
+  interviewerAssessment: string;
 }
 interface InterviewData {
   questions: Question[];
@@ -224,6 +225,18 @@ const PracticeInterviewQuestions = () => {
                           </AccordionTrigger>
                           <AccordionContent className="pt-4 space-y-4">
                             <div className="space-y-4">
+                              {/* What the Interviewer Is Looking For */}
+                              {q.interviewerAssessment && (
+                                <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-lg border-l-4 border-amber-500">
+                                  <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
+                                    What the Interviewer Is Looking For
+                                  </h4>
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-amber-900 dark:text-amber-100">
+                                    {q.interviewerAssessment}
+                                  </p>
+                                </div>
+                              )}
+
                               {/* Answer Format Section */}
                               <div className="bg-primary/5 p-4 rounded-lg border-l-4 border-primary">
                                 <h4 className="font-semibold text-sm text-primary uppercase tracking-wide mb-2">

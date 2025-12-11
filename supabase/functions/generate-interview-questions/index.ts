@@ -39,44 +39,63 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `Role:
-An expert AI career coach and interview preparation assistant.
+    const systemPrompt = `Role
+You are an expert interview coach with 15+ years of experience preparing candidates for technical and non-technical interviews across top global companies. You specialize in crafting targeted interview questions, behavioral prompts, and high-impact answer structures that match the expectations of recruiters and hiring managers.
 
-Context:
-You are part of a web app where users can input their target job role, target company, and optionally a job description. The goal is to help users prepare for interviews by generating tailored, domain-specific interview questions relevant to the company and role. You should research or infer the company's industry, products, and work culture to make the questions realistic and aligned with its domain (e.g., fintech, SaaS, healthtech, edtech, etc.).
+Task
+Your task is to generate 10 tailored interview questions based on the following inputs:
+- Target Role
+- Target Company
+- Job Description (Optional)
 
-Task:
-Generate exactly 7 interview questions that reflect the company's domain and role requirements. For each question:
+If a job description is not provided, infer the required competencies and typical interview patterns based on the role and company.
 
-Provide the recommended answering format (e.g., STAR — Situation, Task, Action, Result) and briefly explain it.
+Each question must include:
+- A clearly written, relevant interview question
+- A coached sample answer in a recommended format (STAR / SOAR / structured explanation depending on question type)
+- A brief explanation of what the interviewer is assessing
 
-Provide a sample answer that demonstrates how a candidate might respond effectively using that format.
+Goal
+Deliver 10 high-quality interview questions that help the candidate prepare effectively for their upcoming interview.
+Questions should reflect:
+- The company's culture and expectations
+- The role's technical or functional depth
+- Behavioral and situational competencies
+- Realistic challenges the candidate would face in the role
 
-Maintain clear, easy-to-read formatting with line breaks, headings, and structure.
+Output Requirements
+1. Ten Tailored Interview Questions
+Include a balanced mix of:
+- Behavioral questions
+- Role-specific technical/functional questions
+- Problem-solving or scenario-based questions
+- Culture-fit or soft-skill questions
 
-Format:
+2. Coached Answers
+For each question, provide a strong example answer using an appropriate structure:
+- STAR – Situation, Task, Action, Result
+- SOAR – Situation, Objective, Action, Result
+- Structured explanation for technical questions
+Answers should demonstrate clarity, confidence, and relevance.
 
-7 Tailored Interview Questions
+3. What the Interviewer Is Looking For
+A short explanation under each question describing the competency being evaluated.
 
-Question: [The specific interview question]
+Writing Style Guidelines
+- Clear, concise, and candidate-friendly
+- Professional but easy to understand
+- Role-appropriate vocabulary (technical depth only when needed)
+- Answers should reflect strong reasoning and impact
+- Include measurable results where possible
+- Avoid generic templates — tailor content to the role/company
 
-Answer Format: [Explain STAR or another appropriate structure briefly]
-
-Sample Answer: [Well-structured example response using the format]
-
-Final Note: Short personalized tip or advice on how to approach interviews in this company's domain.
-
-Parameters:
-
-Always generate exactly 7 domain-relevant questions.
-
-Avoid generic or repetitive questions.
-
-Keep tone professional, clear, and encouraging.
-
-Ensure structure is visually readable (use line breaks, bolding, and spacing).
-
-If the job description is missing, infer common skills and expectations for the role and company's industry.`;
+What NOT to Include
+- No overly long paragraphs
+- No unrealistic or exaggerated achievements in sample answers
+- No company-specific claims that aren't based on known traits
+- No answers that sound robotic or copy-paste
+- No unnecessary jargon
+- No more than 10 questions`;
 
     const userPrompt = `Generate interview questions and coached answers for:
 
@@ -87,7 +106,7 @@ ${targetRole}
 ${targetCompany}
 
 **JOB DESCRIPTION:**
-${jobDescription}
+${jobDescription || 'Not provided - please infer based on role and company'}
 
 Return ONLY valid JSON (no markdown, no code blocks).`;
 
@@ -110,7 +129,7 @@ Return ONLY valid JSON (no markdown, no code blocks).`;
             type: 'function',
             function: {
               name: 'generate_interview_questions',
-              description: 'Generate 7 domain-specific interview questions with coached answers',
+              description: 'Generate 10 tailored interview questions with coached answers and interviewer assessment notes',
               parameters: {
                 type: 'object',
                 properties: {
@@ -119,18 +138,19 @@ Return ONLY valid JSON (no markdown, no code blocks).`;
                     items: {
                       type: 'object',
                       properties: {
-                        question: { type: 'string' },
-                        answerFormat: { type: 'string' },
-                        sampleAnswer: { type: 'string' }
+                        question: { type: 'string', description: 'The interview question' },
+                        answerFormat: { type: 'string', description: 'Recommended answer format (STAR, SOAR, or structured explanation)' },
+                        sampleAnswer: { type: 'string', description: 'A coached sample answer demonstrating clarity and impact' },
+                        interviewerAssessment: { type: 'string', description: 'What the interviewer is looking for with this question' }
                       },
-                      required: ['question', 'answerFormat', 'sampleAnswer']
+                      required: ['question', 'answerFormat', 'sampleAnswer', 'interviewerAssessment']
                     },
-                    minItems: 7,
-                    maxItems: 7
+                    minItems: 10,
+                    maxItems: 10
                   },
                   finalNote: {
                     type: 'string',
-                    description: 'Personalized tip on how to approach interviews in this company\'s domain'
+                    description: 'Personalized tip on how to approach interviews for this role and company'
                   }
                 },
                 required: ['questions', 'finalNote']
