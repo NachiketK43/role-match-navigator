@@ -45,36 +45,42 @@ const Upload = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <UploadIcon className="h-6 w-6 text-primary" />
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <UploadIcon className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Upload Resume</CardTitle>
                 </div>
-                <CardTitle>Upload Resume</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm leading-relaxed">
                   Let AI scan and evaluate your resume for strengths and opportunities.
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Target className="h-6 w-6 text-primary" />
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Target className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Optimize for Any Job</CardTitle>
                 </div>
-                <CardTitle>Optimize for Any Job</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm leading-relaxed">
                   Match your resume to any job description with keyword suggestions and tailored improvements.
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <MessageSquare className="h-6 w-6 text-primary" />
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Prepare for Interviews</CardTitle>
                 </div>
-                <CardTitle>Prepare for Interviews</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm leading-relaxed">
                   Get likely interview questions and AI-coached answers tailored to your role.
                 </CardDescription>
               </CardHeader>
@@ -94,40 +100,56 @@ const Upload = () => {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <FileText className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Resume Optimizer</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Resume Optimizer</CardTitle>
+                </div>
+                <CardDescription className="text-sm leading-relaxed">
                   AI-powered analysis to perfect your resume for any role
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <MessageSquare className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Smart Cover Letter Generator</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Smart Cover Letter Generator</CardTitle>
+                </div>
+                <CardDescription className="text-sm leading-relaxed">
                   Create personalized cover letters in seconds
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <CheckCircle2 className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Interview Question Predictor</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Interview Question Predictor</CardTitle>
+                </div>
+                <CardDescription className="text-sm leading-relaxed">
                   Practice with AI-generated interview questions
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card className="shadow-card hover:shadow-elevated transition-all">
-              <CardHeader>
-                <BarChart3 className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Career Analytics Dashboard</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Career Analytics Dashboard</CardTitle>
+                </div>
+                <CardDescription className="text-sm leading-relaxed">
                   Track your progress and see where you stand
                 </CardDescription>
               </CardHeader>
