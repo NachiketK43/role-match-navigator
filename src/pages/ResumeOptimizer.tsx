@@ -375,12 +375,12 @@ const ResumeOptimizer = () => {
                   {isOptimizing ? (
                     <>
                       <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                      Optimizing with OpenAI...
+                      Optimizing Resume...
                     </>
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-5 w-5" />
-                      Optimize with OpenAI
+                      Optimize Resume
                     </>
                   )}
                 </Button>
