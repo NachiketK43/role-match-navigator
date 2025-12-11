@@ -1,1 +1,4 @@
 project_id = "oocglurxdslnhuxvbghh"
+
+[functions.optimize-resume-openai]
+verify_jwt = false
