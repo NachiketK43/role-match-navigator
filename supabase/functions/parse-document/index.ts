@@ -1,34 +1,76 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getDocument, GlobalWorkerOptions } from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/+esm";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Disable worker for server-side usage
-GlobalWorkerOptions.workerSrc = '';
-
-async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
-  try {
-    const loadingTask = getDocument({ data: arrayBuffer });
-    const pdf = await loadingTask.promise;
-    let fullText = '';
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ');
-      fullText += pageText + '\n\n';
-    }
-
-    return fullText.trim();
-  } catch (error) {
-    console.error('PDF extraction error:', error);
-    throw new Error('Failed to extract text from PDF');
+async function extractTextFromPDFWithAI(arrayBuffer: ArrayBuffer, fileName: string): Promise<string> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    throw new Error('AI service not configured');
   }
+
+  // Convert ArrayBuffer to base64
+  const uint8Array = new Uint8Array(arrayBuffer);
+  let binary = '';
+  for (let i = 0; i < uint8Array.length; i++) {
+    binary += String.fromCharCode(uint8Array[i]);
+  }
+  const base64Data = btoa(binary);
+
+  console.log('Sending PDF to AI for text extraction...');
+
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'Extract ALL text content from this PDF document. Return ONLY the extracted text, preserving the structure and formatting as much as possible. Do not add any commentary, explanations, or markdown formatting. Just return the raw text content from the document.'
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:application/pdf;base64,${base64Data}`
+              }
+            }
+          ]
+        }
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('AI API error:', response.status, errorText);
+    
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Please try again in a moment.');
+    }
+    if (response.status === 402) {
+      throw new Error('AI credits exhausted. Please add credits to continue.');
+    }
+    
+    throw new Error('Failed to process PDF with AI');
+  }
+
+  const aiData = await response.json();
+  const extractedText = aiData.choices?.[0]?.message?.content;
+
+  if (!extractedText) {
+    throw new Error('No text could be extracted from the PDF');
+  }
+
+  return extractedText.trim();
 }
 
 serve(async (req) => {
@@ -63,20 +105,29 @@ serve(async (req) => {
         );
       }
 
+      console.log('Text file processed successfully');
       return new Response(
         JSON.stringify({ text: extractedText.trim() }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    // Handle PDF files
+    // Handle PDF files using AI
     else if (fileName.endsWith('.pdf')) {
-      console.log('Extracting text from PDF...');
+      // Check file size (max 10MB for AI processing)
+      if (file.size > 10 * 1024 * 1024) {
+        return new Response(
+          JSON.stringify({ error: 'PDF file is too large. Maximum size is 10MB.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('Extracting text from PDF using AI...');
       const arrayBuffer = await file.arrayBuffer();
-      extractedText = await extractTextFromPDF(arrayBuffer);
+      extractedText = await extractTextFromPDFWithAI(arrayBuffer, fileName);
 
       if (!extractedText || extractedText.trim().length < 10) {
         return new Response(
-          JSON.stringify({ error: 'Could not extract text from PDF. The PDF may be scanned/image-based. Please paste the text directly.' }),
+          JSON.stringify({ error: 'Could not extract text from PDF. The PDF may be image-based or corrupted. Please paste the text directly.' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -87,11 +138,11 @@ serve(async (req) => {
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    // For DOCX files - provide helpful error message
+    // For DOCX files
     else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
       return new Response(
         JSON.stringify({ 
-          error: 'DOCX parsing is not supported. Please save as PDF or paste the text directly.' 
+          error: 'DOCX files are not supported. Please save as PDF or paste the text directly.' 
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -105,8 +156,9 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error('Error processing file:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to process file';
     return new Response(
-      JSON.stringify({ error: 'Failed to process file. Please paste the text directly into the text area.' }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
