@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download, FileUp } from 'lucide-react';
+import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download } from 'lucide-react';
 import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
 import { RateLimitBanner } from '@/components/RateLimitBanner';
 import jsPDF from 'jspdf';
@@ -35,58 +35,8 @@ const ResumeOptimizer = () => {
   const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const validTypes = ['application/pdf', 'text/plain'];
-    if (!validTypes.includes(file.type) && !file.name.endsWith('.txt') && !file.name.endsWith('.pdf')) {
-      toast.error('Please upload a PDF or TXT file');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size must be less than 10MB');
-      return;
-    }
-
-    setIsUploading(true);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const { data, error } = await supabase.functions.invoke('parse-document', {
-        body: formData,
-      });
-
-      if (error) {
-        console.error('Upload error:', error);
-        toast.error(error.message || 'Failed to parse document');
-        return;
-      }
-
-      if (data?.text) {
-        setResume(data.text);
-        toast.success('Resume imported successfully!');
-      } else if (data?.error) {
-        toast.error(data.error);
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload file. Please paste the text directly.');
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
 
   const handleExportPDF = () => {
     if (!analysisResult) return;
@@ -284,41 +234,13 @@ const ResumeOptimizer = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg">Your Resume</h3>
-                        <p className="text-xs text-muted-foreground">Paste text or upload a PDF</p>
+                        <p className="text-xs text-muted-foreground">Paste your current resume text</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileUpload}
-                        accept=".pdf,.txt"
-                        className="hidden"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="gap-1.5"
-                      >
-                        {isUploading ? (
-                          <>
-                            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                            Importing...
-                          </>
-                        ) : (
-                          <>
-                            <FileUp className="h-3.5 w-3.5" />
-                            Import PDF
-                          </>
-                        )}
-                      </Button>
-                      <Badge variant="outline" className="gap-1">
-                        <Target className="h-3 w-3" />
-                        Step 1
-                      </Badge>
-                    </div>
+                    <Badge variant="outline" className="gap-1">
+                      <Target className="h-3 w-3" />
+                      Step 1
+                    </Badge>
                   </div>
                   <Textarea
                     placeholder="Paste your resume content here...&#10;&#10;Include work experience, skills, education, and accomplishments."
