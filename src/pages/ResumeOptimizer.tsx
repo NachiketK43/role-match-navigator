@@ -7,10 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download } from 'lucide-react';
+import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download, Copy, Settings2 } from 'lucide-react';
 import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
 import { RateLimitBanner } from '@/components/RateLimitBanner';
 import jsPDF from 'jspdf';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface KeywordInsight {
   keyword: string;
@@ -35,8 +40,87 @@ const ResumeOptimizer = () => {
   const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [optimizedResume, setOptimizedResume] = useState<string | null>(null);
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [showSystemPrompt, setShowSystemPrompt] = useState(false);
   const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
+
+  const handleOptimizeWithOpenAI = async () => {
+    if (!resume.trim() || !jobDescription.trim()) {
+      toast.error("Please provide both resume and job description");
+      return;
+    }
+
+    setIsOptimizing(true);
+    setOptimizedResume(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('optimize-resume-openai', {
+        body: { 
+          resume, 
+          jobDescription,
+          systemPrompt: systemPrompt.trim() || undefined
+        }
+      });
+
+      if (error) {
+        console.error("OpenAI optimization error:", error);
+        toast.error(error.message || "Optimization failed. Please try again.");
+        setIsOptimizing(false);
+        return;
+      }
+
+      if (!data?.optimizedResume) {
+        toast.error("Invalid response from OpenAI");
+        setIsOptimizing(false);
+        return;
+      }
+
+      setOptimizedResume(data.optimizedResume);
+      toast.success("Resume optimized successfully!");
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleCopyOptimizedResume = () => {
+    if (optimizedResume) {
+      navigator.clipboard.writeText(optimizedResume);
+      toast.success("Copied to clipboard!");
+    }
+  };
+
+  const handleExportOptimizedPDF = () => {
+    if (!optimizedResume) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let yPos = 20;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    
+    const lines = doc.splitTextToSize(optimizedResume, maxWidth);
+    
+    lines.forEach((line: string) => {
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, margin, yPos);
+      yPos += 6;
+    });
+
+    doc.save('optimized-resume.pdf');
+    toast.success('Optimized resume exported!');
+  };
 
   const handleExportPDF = () => {
     if (!analysisResult) return;
@@ -175,6 +259,7 @@ const ResumeOptimizer = () => {
 
   const handleReset = () => {
     setAnalysisResult(null);
+    setOptimizedResume(null);
     setResume("");
     setJobDescription("");
   };
@@ -286,27 +371,96 @@ const ResumeOptimizer = () => {
                 </div>
               </Card>
 
-              {/* Action Button - Centered */}
-              <div className="flex justify-center pt-4">
+              {/* System Prompt (Collapsible) */}
+              <Collapsible open={showSystemPrompt} onOpenChange={setShowSystemPrompt}>
+                <Card className="border-2 border-border/50">
+                  <CollapsibleTrigger asChild>
+                    <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+                          <Settings2 className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-sm">Custom System Prompt</h3>
+                          <p className="text-xs text-muted-foreground">Optional: Customize how OpenAI processes your resume</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {showSystemPrompt ? 'Hide' : 'Show'}
+                      </Badge>
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="px-4 pb-4">
+                      <Textarea
+                        placeholder="Enter your custom system prompt here...&#10;&#10;Example: You are an expert resume writer specializing in tech roles. Focus on highlighting technical skills and quantifiable achievements."
+                        value={systemPrompt}
+                        onChange={(e) => setSystemPrompt(e.target.value)}
+                        className="min-h-[120px] resize-none border-border/50 focus:border-primary text-sm"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Leave empty to use the default optimization prompt
+                      </p>
+                    </div>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
                 <Button
-                  onClick={handleAnalyze}
-                  disabled={!resume || !jobDescription || isAnalyzing || isRateLimited}
+                  onClick={handleOptimizeWithOpenAI}
+                  disabled={!resume || !jobDescription || isOptimizing}
                   size="lg"
-                  className="px-12 h-14 text-base shadow-lg hover:shadow-xl transition-all"
+                  className="px-8 h-14 text-base shadow-lg hover:shadow-xl transition-all"
                 >
-                  {isAnalyzing ? (
+                  {isOptimizing ? (
                     <>
                       <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                      Analyzing Your Resume...
+                      Optimizing with OpenAI...
                     </>
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-5 w-5" />
-                      Optimize My Resume
+                      Optimize with OpenAI
                     </>
                   )}
                 </Button>
               </div>
+
+              {/* Optimized Resume Output */}
+              {optimizedResume && (
+                <Card className="border-2 border-success/30 bg-success/5">
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-success/20 flex items-center justify-center">
+                          <CheckCircle2 className="h-5 w-5 text-success" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">Optimized Resume</h3>
+                          <p className="text-xs text-muted-foreground">AI-optimized for your target job</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={handleCopyOptimizedResume}>
+                          <Copy className="h-4 w-4 mr-1" />
+                          Copy
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleExportOptimizedPDF}>
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="bg-background rounded-lg border p-4 max-h-[500px] overflow-y-auto">
+                      <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
+                        {optimizedResume}
+                      </pre>
+                    </div>
+                  </div>
+                </Card>
+              )}
             </div>
           ) : (
             /* Results Phase */
