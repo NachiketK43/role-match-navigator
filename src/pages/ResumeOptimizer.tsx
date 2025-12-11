@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target } from 'lucide-react';
+import { FileText, Sparkles, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, Zap, TrendingUp, Target, Download, FileUp } from 'lucide-react';
 import { useRateLimitHandler } from '@/hooks/useRateLimitHandler';
 import { RateLimitBanner } from '@/components/RateLimitBanner';
+import jsPDF from 'jspdf';
 
 interface KeywordInsight {
   keyword: string;
@@ -34,8 +35,154 @@ const ResumeOptimizer = () => {
   const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const { handleError, isRateLimited, remainingTime, getRemainingTimeFormatted, rateLimitInfo } = useRateLimitHandler();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['application/pdf', 'text/plain'];
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.txt') && !file.name.endsWith('.pdf')) {
+      toast.error('Please upload a PDF or TXT file');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const { data, error } = await supabase.functions.invoke('parse-document', {
+        body: formData,
+      });
+
+      if (error) {
+        console.error('Upload error:', error);
+        toast.error(error.message || 'Failed to parse document');
+        return;
+      }
+
+      if (data?.text) {
+        setResume(data.text);
+        toast.success('Resume imported successfully!');
+      } else if (data?.error) {
+        toast.error(data.error);
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload file. Please paste the text directly.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!analysisResult) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let yPos = 20;
+
+    // Title
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resume Optimization Report', margin, yPos);
+    yPos += 15;
+
+    // ATS Score
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`ATS Score: ${analysisResult.atsScore}/100`, margin, yPos);
+    yPos += 12;
+
+    // Overall Feedback
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Overall Feedback:', margin, yPos);
+    yPos += 7;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const feedbackLines = doc.splitTextToSize(analysisResult.overallFeedback, maxWidth);
+    doc.text(feedbackLines, margin, yPos);
+    yPos += feedbackLines.length * 5 + 10;
+
+    // Keyword Analysis
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Keyword Analysis:', margin, yPos);
+    yPos += 7;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    const strongKeywords = analysisResult.keywordInsights.filter(k => k.status === 'strong').map(k => k.keyword);
+    const weakKeywords = analysisResult.keywordInsights.filter(k => k.status === 'weak').map(k => k.keyword);
+    const missingKeywords = analysisResult.keywordInsights.filter(k => k.status === 'missing').map(k => k.keyword);
+
+    if (strongKeywords.length > 0) {
+      doc.text(`✓ Strong: ${strongKeywords.join(', ')}`, margin, yPos);
+      yPos += 6;
+    }
+    if (weakKeywords.length > 0) {
+      doc.text(`○ Weak: ${weakKeywords.join(', ')}`, margin, yPos);
+      yPos += 6;
+    }
+    if (missingKeywords.length > 0) {
+      doc.text(`✗ Missing: ${missingKeywords.join(', ')}`, margin, yPos);
+      yPos += 6;
+    }
+    yPos += 8;
+
+    // Suggested Improvements
+    if (analysisResult.suggestedRewrites.length > 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Suggested Improvements:', margin, yPos);
+      yPos += 10;
+
+      analysisResult.suggestedRewrites.forEach((rewrite, index) => {
+        // Check if we need a new page
+        if (yPos > 260) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Improvement ${index + 1}:`, margin, yPos);
+        yPos += 6;
+
+        doc.setFont('helvetica', 'normal');
+        doc.text('Before:', margin, yPos);
+        yPos += 5;
+        const beforeLines = doc.splitTextToSize(rewrite.before, maxWidth - 5);
+        doc.text(beforeLines, margin + 5, yPos);
+        yPos += beforeLines.length * 4 + 4;
+
+        doc.text('After:', margin, yPos);
+        yPos += 5;
+        const afterLines = doc.splitTextToSize(rewrite.after, maxWidth - 5);
+        doc.text(afterLines, margin + 5, yPos);
+        yPos += afterLines.length * 4 + 8;
+      });
+    }
+
+    doc.save('resume-optimization-report.pdf');
+    toast.success('Report exported successfully!');
+  };
 
   const handleAnalyze = async () => {
     if (!resume.trim() || !jobDescription.trim()) {
@@ -137,13 +284,41 @@ const ResumeOptimizer = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg">Your Resume</h3>
-                        <p className="text-xs text-muted-foreground">Paste your current resume text</p>
+                        <p className="text-xs text-muted-foreground">Paste text or upload a PDF</p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="gap-1">
-                      <Target className="h-3 w-3" />
-                      Step 1
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileUpload}
+                        accept=".pdf,.txt"
+                        className="hidden"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="gap-1.5"
+                      >
+                        {isUploading ? (
+                          <>
+                            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                            Importing...
+                          </>
+                        ) : (
+                          <>
+                            <FileUp className="h-3.5 w-3.5" />
+                            Import PDF
+                          </>
+                        )}
+                      </Button>
+                      <Badge variant="outline" className="gap-1">
+                        <Target className="h-3 w-3" />
+                        Step 1
+                      </Badge>
+                    </div>
                   </div>
                   <Textarea
                     placeholder="Paste your resume content here...&#10;&#10;Include work experience, skills, education, and accomplishments."
@@ -242,10 +417,16 @@ const ResumeOptimizer = () => {
                         </p>
                       </div>
                     </div>
-                    <Button onClick={handleReset} variant="outline" size="lg">
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      New Analysis
-                    </Button>
+                    <div className="flex gap-3">
+                      <Button onClick={handleExportPDF} variant="default" size="lg">
+                        <Download className="mr-2 h-4 w-4" />
+                        Export PDF
+                      </Button>
+                      <Button onClick={handleReset} variant="outline" size="lg">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        New Analysis
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
